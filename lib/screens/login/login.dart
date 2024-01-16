@@ -19,6 +19,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   void _login() {
     if (form.currentState!.validate()) {
+      form.currentState!.save();
+      print('$enteredEmail and $enteredPassword');
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (ctx) => const TabsScreen(),
@@ -90,6 +92,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             }
                             return null;
                           },
+                          onSaved: (value) {
+                            enteredEmail = value;
+                          },
                         ),
                         const SizedBox(
                           height: 6,
@@ -109,6 +114,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               return 'Enter a valid password with more than 5 characters';
                             }
                             return null;
+                          },
+                          onSaved: (value) {
+                            enteredPassword = value;
                           },
                         ),
                         const SizedBox(
