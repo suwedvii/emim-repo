@@ -1,7 +1,6 @@
 import 'package:emim/screens/tabs_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:transparent_image/transparent_image.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -41,14 +40,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   'assets/images/msg_logo.png',
                   width: 100,
                 ),
-
-                // FadeInImage(
-                //   width: 250,
-                //   placeholder: MemoryImage(kTransparentImage),
-                //   image: const NetworkImage(
-                // //       'https://www.mim.estudent.online/app/public/images/logo_w.png'),
-                // ),
-
                 Card(
                   margin: const EdgeInsets.all(16),
                   child: Padding(
@@ -68,9 +59,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         TextFormField(
                           decoration: const InputDecoration(
-                            label: Text('User ID'),
+                            label: Text('E-Mail Address'),
                           ),
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.emailAddress,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           validator: (value) {
                             return null;
                           },
@@ -83,6 +76,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             label: Text('Password'),
                           ),
                           keyboardType: TextInputType.text,
+                          obscureText: true,
+                          autocorrect: false,
+                          enableSuggestions: false,
                           validator: (value) {
                             return null;
                           },
