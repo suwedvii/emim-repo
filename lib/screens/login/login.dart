@@ -12,9 +12,25 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final form = GlobalKey<FormState>();
+
+  String? enteredEmail;
+  String? enteredPassword;
+
   void _login() {
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+    if (form.currentState!.validate()) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (ctx) => const TabsScreen(),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    form.currentState?.dispose();
   }
 
   @override
@@ -32,6 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
         ),
         child: Form(
+          key: form,
           child: Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -65,6 +82,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           autocorrect: false,
                           enableSuggestions: false,
                           validator: (value) {
+                            if (value == null ||
+                                value.trim().length < 5 ||
+                                value.trim().isEmpty ||
+                                !value.contains('@')) {
+                              return 'Enter a valid email address';
+                            }
                             return null;
                           },
                         ),
@@ -80,6 +103,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           autocorrect: false,
                           enableSuggestions: false,
                           validator: (value) {
+                            if (value == null ||
+                                value.trim().length < 5 ||
+                                value.trim().isEmpty) {
+                              return 'Enter a valid password with more than 5 characters';
+                            }
                             return null;
                           },
                         ),
