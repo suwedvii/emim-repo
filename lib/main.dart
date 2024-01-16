@@ -2,12 +2,18 @@ import 'package:emim/screens/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 final lightColorScheme = ColorScheme.fromSeed(
     seedColor: const Color.fromARGB(255, 36, 88, 5),
     brightness: Brightness.light);
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     const ProviderScope(
       child: App(),
@@ -21,7 +27,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'FlutterChat',
+      title: 'eMiM',
       theme: ThemeData().copyWith(
         textTheme: GoogleFonts.latoTextTheme().copyWith(),
         colorScheme: lightColorScheme,
