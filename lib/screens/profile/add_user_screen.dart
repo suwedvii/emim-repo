@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:emim/models/bulding.dart';
-import 'package:emim/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+
+final auth = FirebaseAuth.instance;
 
 class AddUserScreen extends ConsumerStatefulWidget {
   const AddUserScreen(
@@ -22,11 +24,12 @@ class AddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
+  String? error;
+
   final formKey = GlobalKey<FormState>();
   String firstname = '';
   String surname = '';
   String email = '';
-  String password = '';
   Campuses selectedCampus = Campuses.blantyre;
   String? cohort;
   var addingUser = false;
@@ -41,7 +44,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     return null;
   }
 
-  void _addUser(BuildContext ctx) async {
+  void _addUser() async {
     final url =
         Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
 
@@ -52,35 +55,45 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       formKey.currentState!.save();
 
-      final password = firstname + Random().nextInt(100).toString();
+      final password = '${firstname[0]}.$surname${Random().nextInt(100000)}';
 
-      final user =
-          User(widget.userType, '$firstname.$surname', password, email);
+      try {
+        await auth.createUserWithEmailAndPassword(
+            email: email, password: password);
+      } on FirebaseAuthException catch (error) {
+        addingUser = false;
+        Navigator.of(context).pop<String>(
+          error.message,
+        );
 
+        return;
+      }
       try {
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
           body: json.encode(
             {
-              'role': user.role,
-              'username': user.username,
-              'email': user.email,
-              'password': user.password,
-              'program': user.program,
-              'cohort': user.cohort,
-              'campus': user.campus
+              'role': widget.userType,
+              'username': '$firstname.$surname',
+              'email': email,
+              'password': password,
+              'program': '',
+              'cohort': '',
+              'campus': ''
             },
           ),
         );
 
         widget.loadUsers();
 
-        Navigator.of(ctx).pop();
+        Navigator.of(context).pop();
 
         print(response.body);
-      } catch (e) {
-        print(e);
+      } on FirebaseAuthException catch (error) {
+        Navigator.of(context).pop<String>(
+          error.message,
+        );
       }
     }
   }
@@ -154,20 +167,6 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     print(email);
                   },
                 ),
-                TextFormField(
-                  // controller: emailController,
-                  validator: (enteredPassword) {
-                    return _validator(enteredPassword);
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('Password:'),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  onSaved: (value) {
-                    password = value!;
-                    print(password);
-                  },
-                ),
                 if (widget.userType == 'student')
                   Row(
                     children: [
@@ -228,9 +227,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   height: 8,
                 ),
                 ElevatedButton(
-                  onPressed: () {
-                    _addUser(context);
-                  },
+                  onPressed: _addUser,
                   child: addingUser
                       ? const SizedBox(
                           height: 16,

@@ -1,4 +1,7 @@
 import 'package:emim/screens/login/login.dart';
+import 'package:emim/screens/splash_screen.dart';
+import 'package:emim/screens/tabs_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -39,7 +42,18 @@ class App extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.onBackground,
             type: BottomNavigationBarType.fixed),
       ),
-      home: const LoginScreen(),
+      home: StreamBuilder(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (ctx, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SplashScreen();
+            }
+            if (snapshot.hasData) {
+              return const TabsScreen();
+            } else {
+              return const LoginScreen();
+            }
+          }),
     );
   }
 }
