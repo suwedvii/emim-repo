@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "265632125633",
+    "firebase_url": "https://emimbacke-default-rtdb.firebaseio.com",
+    "project_id": "emimbacke",
+    "storage_bucket": "emimbacke.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265632125633:android:398b81b7d93885d0c2ba40",
+        "android_client_info": {
+          "package_name": "com.example.emim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBygdHfe_GoR4yZYp52JvrJBZWVngxbI94"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
