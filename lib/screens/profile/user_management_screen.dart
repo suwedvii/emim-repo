@@ -109,28 +109,28 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
             child: const Icon(Icons.person_2_outlined),
             label: 'Add Student',
             onTap: () {
-              _openAddUserBottomModal('Student');
+              _openAddUserBottomModal('student');
             },
           ),
           SpeedDialChild(
             child: const Icon(Icons.edit_square),
             label: 'Add Instructor',
             onTap: () {
-              _openAddUserBottomModal('Instructor');
+              _openAddUserBottomModal('instructor');
             },
           ),
           SpeedDialChild(
             child: const Icon(Icons.attach_money),
             label: 'Add Accountant',
             onTap: () {
-              _openAddUserBottomModal('Accountant');
+              _openAddUserBottomModal('accountant');
             },
           ),
           SpeedDialChild(
             child: const Icon(Icons.computer_rounded),
             label: 'Add Administrator',
             onTap: () {
-              _openAddUserBottomModal('Administrator');
+              _openAddUserBottomModal('administrator');
             },
           ),
         ],

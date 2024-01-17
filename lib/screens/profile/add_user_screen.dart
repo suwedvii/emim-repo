@@ -211,94 +211,48 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     print(password);
                   },
                 ),
+                const SizedBox(
+                  height: 10,
+                ),
                 if (widget.userType == 'student')
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField(
-                          value: selectedCampus,
-                          items: Campuses.values
-                              .map(
-                                (campus) => DropdownMenuItem(
-                                  value: campus,
-                                  child: Text(
-                                    campus.name.toUpperCase(),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (campus) {
-                            if (campus == null) {
-                              return;
-                            }
-                            setState(() {
-                              selectedCampus = campus;
-                            });
-                          },
-                        ),
+                        child: CustomDropdown(
+                            items: programs.map((e) => e.programCode).toList(),
+                            value: programs.isNotEmpty
+                                ? programs[0].programCode
+                                : 'No programs',
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                program = value;
+                              });
+                            },
+                            label: 'Program'),
                       ),
                       const SizedBox(
                         width: 8,
                       ),
                       Expanded(
-                        child: DropdownButtonFormField(
-                          value: selectedCampus,
-                          items: Campuses.values
-                              .map(
-                                (campus) => DropdownMenuItem(
-                                  value: campus,
-                                  child: Text(
-                                    campus.name.toUpperCase(),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (campus) {
-                            if (campus == null) {
-                              return;
-                            }
-                            setState(
-                              () {
-                                selectedCampus = campus;
-                              },
-                            );
-                          },
-                        ),
+                        child: CustomDropdown(
+                            items: Campuses.values
+                                .map((e) => e.name.toUpperCase())
+                                .toList(),
+                            value: selectedCampus.name.toUpperCase(),
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                program = value;
+                              });
+                            },
+                            label: 'Campus'),
                       ),
                     ],
                   ),
                 const SizedBox(
                   height: 8,
                 ),
-                if (widget.userType == 'student')
-                  CustomDropdown(
-                      items: programs.map((e) => e.programCode).toList(),
-                      value: programs.isNotEmpty
-                          ? programs[0].programCode
-                          : 'No programs',
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          program = value;
-                        });
-                      },
-                      label: 'Program'),
-                const SizedBox(
-                  height: 8,
-                ),
-                if (widget.userType == 'student')
-                  CustomDropdown(
-                      items: Campuses.values
-                          .map((e) => e.name.toUpperCase())
-                          .toList(),
-                      value: selectedCampus.name.toUpperCase(),
-                      onChanged: (value) {
-                        if (value == null) return;
-                        setState(() {
-                          program = value;
-                        });
-                      },
-                      label: 'Campus'),
                 const SizedBox(
                   height: 8,
                 ),
