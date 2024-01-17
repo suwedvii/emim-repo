@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:emim/models/bulding.dart';
+import 'package:emim/models/program.dart';
 import 'package:emim/models/user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +27,7 @@ class AddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
+  List<Program> programs = [];
   final formKey = GlobalKey<FormState>();
   String firstname = '';
   String surname = '';
@@ -44,7 +47,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     return null;
   }
 
-  void _addUser(BuildContext ctx) async {
+  void _addUser(BuildContext ctx, String role) async {
     final url =
         Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
 
@@ -57,8 +60,9 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = firstname + Random().nextInt(100).toString();
 
-      final user =
-          User(widget.userType, '$firstname.$surname', password, email);
+      if (role == 'student')
+        final user =
+            User(widget.userType, '$firstname.$surname', password, email);
 
       try {
         final response = await http.post(
