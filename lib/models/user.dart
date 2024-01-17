@@ -1,3 +1,7 @@
+enum Gender { male, female, other }
+
+enum Titles { mr, ms, mrs, prof, dr, sir }
+
 class User {
   String profilePicture;
   String userId;

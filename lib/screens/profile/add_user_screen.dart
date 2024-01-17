@@ -5,7 +5,9 @@ import 'package:emim/models/bulding.dart';
 import 'package:emim/models/program.dart';
 import 'package:emim/models/user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
+import 'package:emim/widgets/my_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -28,13 +30,17 @@ class AddUserScreen extends ConsumerStatefulWidget {
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   List<Program> programs = [];
+  List<String> cohorts = [];
   final formKey = GlobalKey<FormState>();
-  String firstname = '';
+  String? firstname = '';
   String surname = '';
   String email = '';
   Campuses selectedCampus = Campuses.blantyre;
-  String? program;
-  String? cohort;
+  String campus = '';
+  Gender selectedGender = Gender.male;
+  String gender = '';
+  String program = '';
+  String cohort = '';
   var addingUser = false;
 
   String? _validator(String? value) {
@@ -58,36 +64,61 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       formKey.currentState!.save();
 
-      final password = firstname + Random().nextInt(100).toString();
+      final password = '$firstname${Random().nextInt(100).toString()}';
 
-      if (role == 'student')
-        final user =
-            User(widget.userType, '$firstname.$surname', password, email);
+      if (role == 'student') {
+        try {
+          final response = await http.post(
+            url,
+            headers: {'Content-Type': 'application/json'},
+            body: json.encode(
+              {
+                'password': password,
+                'studentId': '',
+                'userCampus': selectedCampus.name,
+                'userProgram': program,
+                'userCohort': cohort,
+                'gender': selectedGender.name,
+                'username': '$firstname.$surname',
+                'emailAddress': email,
+                'role': widget.userType,
+              },
+            ),
+          );
 
-      try {
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(
-            {
-              'role': user.role,
-              'username': user.username,
-              'email': user.email,
-              'password': user.password,
-              'program': user.program,
-              'cohort': user.cohort,
-              'campus': user.campus
-            },
-          ),
-        );
+          widget.loadUsers();
 
-        widget.loadUsers();
+          Navigator.of(ctx).pop();
 
-        Navigator.of(ctx).pop();
+          print(response.body);
+        } on FirebaseException catch (e) {
+          print(e);
+        }
+      }
+    }
+  }
 
-        print(response.body);
-      } catch (e) {
-        print(e);
+  void _loadCohorts() async {
+    final List<String> retrievedCohorts = [];
+    final url =
+        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'cohorts.json');
+
+    try {
+      final response = await http.get(url);
+      final Map<String, dynamic> listData = json.decode(response.body);
+
+      // Check if the widget is still mounted before updating the state
+      if (mounted) {
+        for (final cohort in listData.entries) {
+          retrievedCohorts.add(cohort.value['name']);
+        }
+        setState(() {
+          cohorts = retrievedCohorts;
+        });
+      }
+    } on FirebaseException catch (error) {
+      if (kDebugMode) {
+        print(error);
       }
     }
   }
@@ -100,15 +131,19 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     try {
       final response = await http.get(url);
       final Map<String, dynamic> listData = json.decode(response.body);
-      for (final program in listData.entries) {
-        retrievedPrograms.add(Program(
-          description: program.value['description'],
-          duration: program.value['duration'],
-          faculty: program.value['faculty'],
-          programCode: program.value['programCode'],
-          programId: program.key,
-          programName: program.value['programName'],
-        ));
+
+      // Check if the widget is still mounted before updating the state
+      if (mounted) {
+        for (final program in listData.entries) {
+          retrievedPrograms.add(Program(
+            description: program.value['description'],
+            duration: program.value['duration'],
+            faculty: program.value['faculty'],
+            programCode: program.value['programCode'],
+            programId: program.key,
+            programName: program.value['programName'],
+          ));
+        }
         setState(() {
           programs = retrievedPrograms;
         });
@@ -130,6 +165,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   void initState() {
     super.initState();
     _loadPrograms();
+    _loadCohorts();
   }
 
   @override
@@ -148,66 +184,54 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 Text('Add ${widget.userType}',
                     style: Theme.of(context)
                         .textTheme
-                        .bodyLarge!
+                        .titleLarge!
                         .copyWith(fontWeight: FontWeight.bold)),
+                const SizedBox(
+                  height: 10,
+                ),
+                MyTextFormFiled(
+                    onValidate: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Enter a valid name';
+                      }
+                      return null;
+                    },
+                    onValueSaved: (value) {
+                      firstname = value;
+                    },
+                    label: 'First Name'),
                 const SizedBox(
                   height: 8,
                 ),
-                TextFormField(
-                  // controller: firstnameController,
-                  validator: (fname) {
-                    return _validator(fname);
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('First Name:'),
-                  ),
-                  keyboardType: TextInputType.name,
-                  onSaved: (value) {
-                    firstname = value!;
-                    print(firstname);
-                  },
+                MyTextFormFiled(
+                    onValidate: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Enter a valid name';
+                      }
+                      return null;
+                    },
+                    onValueSaved: (value) {
+                      firstname = value;
+                    },
+                    label: 'Surname'),
+                const SizedBox(
+                  height: 8,
                 ),
-                TextFormField(
-                  // controller: surnameController,
-                  validator: (sname) {
-                    return _validator(sname);
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('Surname:'),
-                  ),
-                  keyboardType: TextInputType.name,
-                  onSaved: (value) {
-                    surname = value!;
-                    print(surname);
-                  },
-                ),
-                TextFormField(
-                  // controller: emailController,
-                  validator: (enteredEmail) {
-                    return _validator(enteredEmail);
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('Email Address:'),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  onSaved: (value) {
-                    email = value!;
-                    print(email);
-                  },
-                ),
-                TextFormField(
-                  // controller: emailController,
-                  validator: (enteredPassword) {
-                    return _validator(enteredPassword);
-                  },
-                  decoration: const InputDecoration(
-                    label: Text('Password:'),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  onSaved: (value) {
-                    password = value!;
-                    print(password);
-                  },
+                MyTextFormFiled(
+                    onValidate: (value) {
+                      if (value == null ||
+                          value.trim().isEmpty ||
+                          !value.trim().contains('@')) {
+                        return 'Enter a valid email address';
+                      }
+                      return null;
+                    },
+                    onValueSaved: (value) {
+                      firstname = value;
+                    },
+                    label: 'Email'),
+                const SizedBox(
+                  height: 12,
                 ),
                 if (widget.userType == 'student')
                   Row(
@@ -238,7 +262,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                             onChanged: (value) {
                               if (value == null) return;
                               setState(() {
-                                program = value;
+                                campus = value;
                               });
                             },
                             label: 'Campus'),
@@ -246,14 +270,52 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     ],
                   ),
                 const SizedBox(
-                  height: 8,
+                  height: 12,
                 ),
+                if (widget.userType == 'student')
+                  Row(
+                    children: [
+                      Expanded(
+                        child: CustomDropdown(
+                            items: cohorts,
+                            value:
+                                cohorts.isNotEmpty ? cohorts[0] : 'No cohorts',
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                cohort = value;
+                              });
+                            },
+                            label: 'Cohort'),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(
+                        child: CustomDropdown(
+                            items: Gender.values
+                                .map((e) => e.name.toUpperCase())
+                                .toList(),
+                            value: selectedGender.name.toUpperCase(),
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                gender = value;
+                              });
+                            },
+                            label: 'Gender'),
+                      ),
+                    ],
+                  ),
                 const SizedBox(
                   height: 8,
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _addUser(context);
+                    _addUser(
+                      context,
+                      widget.userType.toLowerCase(),
+                    );
                   },
                   child: addingUser
                       ? const SizedBox(

@@ -4,13 +4,15 @@ import 'package:flutter/material.dart';
 class MyTextFormFiled extends StatefulWidget {
   MyTextFormFiled(
       {super.key,
-      this.validator,
+      required this.onValidate,
+      required this.onValueSaved,
       required this.label,
       this.inputType,
       this.enteredText,
       this.maxLines});
 
-  final Function(String? value)? validator;
+  final Function(String? value) onValueSaved;
+  final Function(String? value) onValidate;
   final String label;
   final TextInputType? inputType;
   final int? maxLines;
@@ -23,12 +25,9 @@ class MyTextFormFiled extends StatefulWidget {
 }
 
 class _MyTextFormFiledState extends State<MyTextFormFiled> {
-  var inputController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: inputController,
       decoration: InputDecoration(
           alignLabelWithHint: true,
           label: Text(widget.label),
@@ -41,14 +40,11 @@ class _MyTextFormFiledState extends State<MyTextFormFiled> {
           )),
       keyboardType: widget.inputType,
       maxLines: widget.maxLines,
-      onSaved: (title) {
-        setState(() {
-          if (widget.enteredText == null) return;
-          widget.enteredText = title;
-        });
+      onSaved: (value) {
+        widget.onValidate(value);
       },
       validator: (enteredValue) {
-        return widget.validator!(enteredValue);
+        return widget.onValidate(enteredValue);
       },
     );
   }

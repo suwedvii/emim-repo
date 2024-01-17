@@ -53,7 +53,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     for (final user in listData.entries) {
       final id = user.key.toString();
       final username = user.value['username'];
-      final email = user.value['email'];
+      final email = user.value['emailAddress'];
       final password = user.value['password'];
       final role = user.value['role'];
 

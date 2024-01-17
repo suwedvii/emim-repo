@@ -25,6 +25,8 @@ class CustomDropdown extends StatelessWidget {
       }).toList(),
       onChanged: onChanged,
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Theme.of(context).colorScheme.onPrimary,
         labelText: 'Select $label',
         border: const OutlineInputBorder(),
       ),
