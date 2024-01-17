@@ -72,12 +72,21 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     });
   }
 
-  void _openAddUserBottomModal(String userType) {
-    showModalBottomSheet(
+  void _openAddUserBottomModal(String userType) async {
+    final error = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       builder: (ctx) => AddUserScreen(userType: userType, loadUsers: loadUsers),
+    );
+
+    if (error == null) return;
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error),
+      ),
     );
   }
 

@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:emim/models/bulding.dart';
-import 'package:emim/models/program.dart';
-import 'package:emim/models/student.dart';
+import 'package:emim/models/user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+
+final auth = FirebaseAuth.instance;
 
 class AddUserScreen extends ConsumerStatefulWidget {
   const AddUserScreen(
@@ -25,12 +25,10 @@ class AddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
-  List<Program> programs = [];
   final formKey = GlobalKey<FormState>();
   String firstname = '';
   String surname = '';
   String email = '';
-  String password = '';
   Campuses selectedCampus = Campuses.blantyre;
   String? program;
   String? cohort;
@@ -46,7 +44,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     return null;
   }
 
-  void _addUser(BuildContext ctx, String role) async {
+  void _addUser(BuildContext ctx) async {
+    final url =
+        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
+
     if (formKey.currentState!.validate()) {
       setState(() {
         addingUser = true;
@@ -56,38 +57,31 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = firstname + Random().nextInt(100).toString();
 
+      final user =
+          User(widget.userType, '$firstname.$surname', password, email);
+
       try {
-        if (role == 'student') {
-          final url = Uri.https(
-              'emimbacke-default-rtdb.firebaseio.com', 'students.json');
-          final response = await http.post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(Student(
-              studentId: Random().nextInt(10000).toString(),
-              userCampus: selectedCampus.name,
-              userProgram: program!,
-              userCohort: cohort!,
-              password: password,
-            )
-                // {
-                //   'role': user.role,
-                //   'username': user.username,
-                //   'email': user.email,
-                //   'password': user.password,
-                //   'program': user.program,
-                //   'cohort': user.cohort,
-                //   'campus': user.campus
-                // },
-                ),
-          );
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(
+            {
+              'role': user.role,
+              'username': user.username,
+              'email': user.email,
+              'password': user.password,
+              'program': user.program,
+              'cohort': user.cohort,
+              'campus': user.campus
+            },
+          ),
+        );
 
-          widget.loadUsers();
+        widget.loadUsers();
 
-          // Navigator.of(ctx).pop();
+        Navigator.of(ctx).pop();
 
-          print(response.body);
-        }
+        print(response.body);
       } catch (e) {
         print(e);
       }
@@ -211,9 +205,6 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     print(password);
                   },
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
                 if (widget.userType == 'student')
                   Row(
                     children: [
@@ -258,7 +249,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _addUser(context, widget.userType.toLowerCase());
+                    _addUser(context);
                   },
                   child: addingUser
                       ? const SizedBox(
