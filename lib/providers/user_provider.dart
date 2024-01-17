@@ -20,14 +20,16 @@ class UserNotifier extends StateNotifier<List<User>> {
         final email = user.value['email'];
         final password = user.value['password'];
         final role = user.value['role'];
-        final cohort = user.value['cohort'];
-        final program = user.value['program'];
-        final campus = user.value['campus'];
 
         state = [
           ...state,
-          User(role, username, password, email,
-              id: id, campus: campus, program: program, cohort: cohort)
+          User(
+            userId: id,
+            username: username,
+            emailAddress: email,
+            password: password,
+            role: role,
+          )
         ];
       }
       // ignore: empty_catches
@@ -38,7 +40,7 @@ class UserNotifier extends StateNotifier<List<User>> {
     final userExist = state.contains(user);
 
     if (userExist) {
-      state = state.where((element) => element.id != user.id).toList();
+      state = state.where((element) => element.userId != user.userId).toList();
       return false;
     } else {
       state = [...state, user];

@@ -60,13 +60,13 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     }
   }
 
-  void _openAddFacultyBottomSheet() {
+  void _openAddFacultyBottomSheet(String mode) {
     showModalBottomSheet(
       isDismissible: false,
       isScrollControlled: true,
       useSafeArea: true,
       context: context,
-      builder: (ctx) => const AddFacultyModal(),
+      builder: (ctx) => AddFacultyModal(mode: mode),
     );
   }
 
@@ -98,7 +98,15 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
             label: 'Add Faculty',
             child: const Icon(Icons.library_books_outlined),
             onTap: () {
-              _openAddFacultyBottomSheet();
+              _openAddFacultyBottomSheet('Faculty');
+            },
+          ),
+          SpeedDialChild(
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            label: 'Add Cohort',
+            child: const Icon(Icons.people),
+            onTap: () {
+              _openAddFacultyBottomSheet('Cohort');
             },
           ),
           SpeedDialChild(

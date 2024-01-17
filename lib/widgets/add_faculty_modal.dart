@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 class AddFacultyModal extends ConsumerStatefulWidget {
-  const AddFacultyModal({super.key});
+  const AddFacultyModal({super.key, required this.mode});
+
+  final String mode;
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() {
@@ -15,57 +17,37 @@ class AddFacultyModal extends ConsumerStatefulWidget {
 }
 
 class _AddFacultyModalState extends ConsumerState<AddFacultyModal> {
+  bool isLoading = false;
+  final form = GlobalKey<FormState>();
+
   final facultyNameController = TextEditingController();
 
-  void _addFaculty(String? faculty) async {
-    Navigator.pop(context);
+  void _addFaculty(String? item) async {
+    if (form.currentState!.validate()) {
+      isLoading = true;
+      final url = Uri.https('emimbacke-default-rtdb.firebaseio.com',
+          '${widget.mode.toLowerCase()}s.json');
 
-    if (faculty == '' || faculty == null) {
-      showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-                content: const Text(
-                    'Oops! invalid input. Please enter valid Faculty name'),
-                title: const Text('Invalid Input'),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(ctx);
-                    },
-                    child: const Text('Okay'),
-                  ),
-                ],
-              ));
-      return;
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'name': item,
+        }),
+      );
+
+      // print(ref.read(facultiesProvider));
+
+      print(response);
+
+      Navigator.of(context).pop();
     }
+  }
 
-    // final Response facultyAdded =
-    //     ref.read(facultiesProvider.notifier).addFaculty(faculty);
-    // ScaffoldMessenger.of(context).clearSnackBars();
-    // ScaffoldMessenger.of(context).showSnackBar(
-    //   SnackBar(
-    //     content: Text(facultyAdded.body
-    //         // facultyAdded
-    //         //   ? 'Faculty $faculty was successfully added.'
-    //         //   : 'Faculty $faculty was failed to be added.'
-    //         ),
-    //   ),
-    // );
-
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'faculties.json');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode({
-        'name': faculty,
-      }),
-    );
-
-    // print(ref.read(facultiesProvider));
-
-    print(response.body);
+  @override
+  void dispose() {
+    super.dispose();
+    form.currentState?.dispose();
   }
 
   @override
@@ -74,41 +56,58 @@ class _AddFacultyModalState extends ConsumerState<AddFacultyModal> {
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 30),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('Add Faculty',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleLarge!
-                  .copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(
-            height: 10,
-          ),
-          TextField(
-            controller: facultyNameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(8),
-                ),
-              ),
-              label: Text('Faculty Name'),
+      child: Form(
+        key: form,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text('Add ${widget.mode}',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge!
+                    .copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(
+              height: 10,
             ),
-            keyboardType: TextInputType.name,
-            maxLines: 1,
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _addFaculty(facultyNameController.text);
-            },
-            child: const Text('Add Faculty'),
-          ),
-        ],
+            TextFormField(
+              controller: facultyNameController,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(8),
+                  ),
+                ),
+                label: Text('${widget.mode} Name'),
+              ),
+              keyboardType: TextInputType.name,
+              maxLines: 1,
+              validator: (value) {
+                if (value == null ||
+                    value.trim().isEmpty ||
+                    value.trim().length < 6) {
+                  return 'Enter a valived ${widget.mode} name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _addFaculty(facultyNameController.text);
+              },
+              child: !isLoading
+                  ? Text('Add ${widget.mode}')
+                  : const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(),
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

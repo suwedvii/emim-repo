@@ -56,12 +56,14 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
       final email = user.value['email'];
       final password = user.value['password'];
       final role = user.value['role'];
-      final cohort = user.value['cohort'];
-      final program = user.value['program'];
-      final campus = user.value['campus'];
 
-      userList.add(User(role, username, password, email,
-          campus: campus, cohort: cohort, id: id, program: program));
+      userList.add(User(
+        userId: id,
+        username: username,
+        emailAddress: email,
+        password: password,
+        role: role,
+      ));
     }
 
     setState(() {
