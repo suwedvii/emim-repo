@@ -1,4 +1,5 @@
 import 'package:emim/screens/tabs_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,20 +13,34 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final auth = FirebaseAuth.instance;
   final form = GlobalKey<FormState>();
 
   String? enteredEmail;
   String? enteredPassword;
 
-  void _login() {
+  void _login() async {
     if (form.currentState!.validate()) {
       form.currentState!.save();
       print('$enteredEmail and $enteredPassword');
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (ctx) => const TabsScreen(),
-        ),
-      );
+      try {
+        final result = await auth.signInWithEmailAndPassword(
+            email: enteredEmail!, password: enteredPassword!);
+        if (result.additionalUserInfo == null) return;
+
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (ctx) => const TabsScreen(),
+          ),
+        );
+      } on FirebaseException catch (error) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Authentication Failed'),
+          ),
+        );
+      }
     }
   }
 
@@ -93,7 +108,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            enteredEmail = value;
+                            if (value == null) return;
+                            enteredEmail = value.trim();
                           },
                         ),
                         const SizedBox(
@@ -116,7 +132,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             return null;
                           },
                           onSaved: (value) {
-                            enteredPassword = value;
+                            if (value == null) return;
+                            enteredPassword = value.trim();
                           },
                         ),
                         const SizedBox(
