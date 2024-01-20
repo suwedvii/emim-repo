@@ -1,6 +1,6 @@
 import 'package:emim/models/user.dart';
 
-class Student extends User {
+class Student extends MyUser {
   String studentId = '';
   String userCampus = '';
   String userProgram = '';

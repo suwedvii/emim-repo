@@ -3,7 +3,7 @@ import 'package:emim/models/user.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
-class UserNotifier extends StateNotifier<List<User>> {
+class UserNotifier extends StateNotifier<List<MyUser>> {
   UserNotifier() : super([]);
 
   final url = Uri.http('emimbacke-default-rtdb.firebaseio.com', 'users.json');
@@ -15,28 +15,15 @@ class UserNotifier extends StateNotifier<List<User>> {
       final Map<Map, dynamic> retriviedUsers = json.decode(response.body);
 
       for (final user in retriviedUsers.entries) {
-        final id = user.key.toString();
-        final username = user.value['username'];
-        final email = user.value['email'];
-        final password = user.value['password'];
-        final role = user.value['role'];
+        final retrievedUser = MyUser.fromMap(user.value);
 
-        state = [
-          ...state,
-          User(
-            userId: id,
-            username: username,
-            emailAddress: email,
-            password: password,
-            role: role,
-          )
-        ];
+        state = [...state, retrievedUser];
       }
       // ignore: empty_catches
     } catch (error) {}
   }
 
-  bool addUser(User user) {
+  bool addUser(MyUser user) {
     final userExist = state.contains(user);
 
     if (userExist) {
@@ -49,6 +36,6 @@ class UserNotifier extends StateNotifier<List<User>> {
   }
 }
 
-final userProvider = StateNotifierProvider<UserNotifier, List<User>>(
+final userProvider = StateNotifierProvider<UserNotifier, List<MyUser>>(
   (ref) => UserNotifier(),
 );

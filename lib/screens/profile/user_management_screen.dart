@@ -18,7 +18,7 @@ class UserManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
-  List<User> users = [];
+  List<MyUser> users = [];
 
   @override
   void initState() {
@@ -32,7 +32,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     final url =
         Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
 
-    final List<User> userList = [];
+    final List<MyUser> userList = [];
 
     final response = await http.get(url);
 
@@ -49,19 +49,14 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
     if (listData == null) return;
 
     for (final user in listData.entries) {
-      final id = user.key.toString();
-      final username = user.value['username'];
-      final email = user.value['emailAddress'];
-      final password = user.value['password'];
-      final role = user.value['role'];
+      // final id = user.key.toString();
+      // final username = user.value['username'];
+      // final email = user.value['emailAddress'];
+      // final password = user.value['password'];
+      // final role = user.value['role'];
 
-      userList.add(User(
-        userId: id,
-        username: username,
-        emailAddress: email,
-        password: password,
-        role: role,
-      ));
+      userList.add(MyUser.fromMap(user.value));
+      print(MyUser.fromMap(user.value));
     }
 
     setState(() {

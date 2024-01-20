@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:emim/models/user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/my_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,6 +37,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String firstname = '';
   String surname = '';
   String email = '';
+  String othernames = '';
   String selectedCampus = campuses[0];
   String selectedGender = genders[0];
   String selectedProgram = '';
@@ -64,27 +66,36 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = '$firstname${Random().nextInt(100).toString()}';
 
+      final user = MyUser(
+              userId: 'userId',
+              username: '${firstname[0]}.$surname',
+              password: password,
+              firstName: firstname,
+              lastName: surname,
+              otherNames: othernames,
+              role: role)
+          .toJson();
+
       print('cohort is $selectedCohort');
 
       if (role == 'student') {
         try {
-          final response = await http.post(
-            url,
-            headers: {'Content-Type': 'application/json'},
-            body: json.encode(
-              {
-                'password': password,
-                'studentId': '',
-                'userCampus': selectedCampus,
-                'userProgram': selectedProgram,
-                'userCohort': selectedCohort,
-                'gender': selectedGender,
-                'username': '$firstname.$surname',
-                'emailAddress': email,
-                'role': widget.userType,
-              },
-            ),
-          );
+          final response = await http.post(url,
+              headers: {'Content-Type': 'application/json'}, body: user
+              // json.encode(user
+              //     // {
+              //     //   'password': password,
+              //     //   'studentId': '',
+              //     //   'userCampus': selectedCampus,
+              //     //   'userProgram': selectedProgram,
+              //     //   'userCohort': selectedCohort,
+              //     //   'gender': selectedGender,
+              //     //   'username': '$firstname.$surname',
+              //     //   'emailAddress': email,
+              //     //   'role': widget.userType,
+              //     // },
+              //     ),
+              );
 
           widget.loadUsers();
 
@@ -213,6 +224,20 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       surname = value!;
                     },
                     label: 'Surname'),
+                const SizedBox(
+                  height: 8,
+                ),
+                MyTextFormFiled(
+                    onValidate: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Enter a valid name';
+                      }
+                      return null;
+                    },
+                    onValueSaved: (value) {
+                      othernames = value!;
+                    },
+                    label: 'Other Names'),
                 const SizedBox(
                   height: 8,
                 ),

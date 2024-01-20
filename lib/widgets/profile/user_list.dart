@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class UserList extends ConsumerWidget {
   const UserList({super.key, required this.users});
 
-  final List<User> users;
+  final List<MyUser> users;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
