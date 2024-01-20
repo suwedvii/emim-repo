@@ -3,10 +3,10 @@ import 'package:intl/intl.dart';
 final formarter = DateFormat.yMd();
 
 class Payment {
-  String paymentID;
-  String paymentDescription;
-  String payerName;
-  String amount;
+  String? paymentID;
+  String? paymentDescription;
+  String? payerName;
+  String? amount;
   String? paymentDate;
   String? paymentStatus;
   String? imageUri;

@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 // import 'package:emim/providers/faculties_provider.dart';
+import 'package:emim/models/cohort.dart';
+import 'package:emim/models/faculty.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -27,18 +29,18 @@ class _AddFacultyModalState extends ConsumerState<AddFacultyModal> {
       isLoading = true;
       final url = Uri.https('emimbacke-default-rtdb.firebaseio.com',
           '${widget.mode.toLowerCase()}s.json');
-
+      final entredItem = widget.mode == 'Faculty'
+          ? Faculty(item).toJson()
+          : Cohort(item).toJson();
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'name': item,
-        }),
+        body: jsonEncode(entredItem),
       );
 
       // print(ref.read(facultiesProvider));
 
-      print(response);
+      print(response.body);
 
       Navigator.of(context).pop();
     }

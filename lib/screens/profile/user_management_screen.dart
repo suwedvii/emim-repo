@@ -46,9 +46,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
 
     print('Status code: ${response.statusCode}');
 
-    if (listData == null) {
-      return;
-    }
+    if (listData == null) return;
 
     for (final user in listData.entries) {
       final id = user.key.toString();

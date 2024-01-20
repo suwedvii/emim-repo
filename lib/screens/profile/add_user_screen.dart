@@ -1,9 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:emim/models/bulding.dart';
-import 'package:emim/models/program.dart';
-import 'package:emim/models/user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/my_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 
 final auth = FirebaseAuth.instance;
+
+List<String> campuses = ['Select Campus', 'Blantyre', 'Lilonge'];
+List<String> genders = ['Select Gender', 'Male', 'Female', 'Other'];
 
 class AddUserScreen extends ConsumerStatefulWidget {
   const AddUserScreen(
@@ -29,19 +29,17 @@ class AddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
-  List<Program> programs = [];
+  bool isLoading = true;
+  List<String> programs = [];
   List<String> cohorts = [];
   final formKey = GlobalKey<FormState>();
-  String? firstname = '';
+  String firstname = '';
   String surname = '';
   String email = '';
-  Campuses selectedCampus = Campuses.blantyre;
-  String campus = '';
-  Gender selectedGender = Gender.male;
-  String gender = '';
-  String program = '';
-  String cohort = '';
-  var addingUser = false;
+  String selectedCampus = campuses[0];
+  String selectedGender = genders[0];
+  String selectedProgram = '';
+  String selectedCohort = '';
 
   String? _validator(String? value) {
     if (value == null ||
@@ -59,12 +57,14 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
     if (formKey.currentState!.validate()) {
       setState(() {
-        addingUser = true;
+        isLoading = true;
       });
 
       formKey.currentState!.save();
 
       final password = '$firstname${Random().nextInt(100).toString()}';
+
+      print('cohort is $selectedCohort');
 
       if (role == 'student') {
         try {
@@ -75,10 +75,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
               {
                 'password': password,
                 'studentId': '',
-                'userCampus': selectedCampus.name,
-                'userProgram': program,
-                'userCohort': cohort,
-                'gender': selectedGender.name,
+                'userCampus': selectedCampus,
+                'userProgram': selectedProgram,
+                'userCohort': selectedCohort,
+                'gender': selectedGender,
                 'username': '$firstname.$surname',
                 'emailAddress': email,
                 'role': widget.userType,
@@ -99,11 +99,13 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   }
 
   void _loadCohorts() async {
-    final List<String> retrievedCohorts = [];
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'cohorts.json');
-
+    setState(() {
+      isLoading = true;
+    });
     try {
+      final List<String> retrievedCohorts = ['Select Cohort'];
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'cohorts.json');
       final response = await http.get(url);
       final Map<String, dynamic> listData = json.decode(response.body);
 
@@ -114,6 +116,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         }
         setState(() {
           cohorts = retrievedCohorts;
+          isLoading = false;
         });
       }
     } on FirebaseException catch (error) {
@@ -124,28 +127,24 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   }
 
   void _loadPrograms() async {
-    final List<Program> retrievedPrograms = [];
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
-
+    setState(() {
+      isLoading = true;
+    });
     try {
+      final List<String> retrievedPrograms = ['Select Program'];
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
       final response = await http.get(url);
       final Map<String, dynamic> listData = json.decode(response.body);
 
       // Check if the widget is still mounted before updating the state
       if (mounted) {
         for (final program in listData.entries) {
-          retrievedPrograms.add(Program(
-            description: program.value['description'],
-            duration: program.value['duration'],
-            faculty: program.value['faculty'],
-            programCode: program.value['programCode'],
-            programId: program.key,
-            programName: program.value['programName'],
-          ));
+          retrievedPrograms.add(program.value['programCode']);
         }
         setState(() {
           programs = retrievedPrograms;
+          isLoading = false;
         });
       }
     } on Exception catch (error) {
@@ -164,8 +163,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   @override
   void initState() {
     super.initState();
-    _loadPrograms();
     _loadCohorts();
+    _loadPrograms();
   }
 
   @override
@@ -197,7 +196,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       return null;
                     },
                     onValueSaved: (value) {
-                      firstname = value;
+                      firstname = value!;
                     },
                     label: 'First Name'),
                 const SizedBox(
@@ -211,7 +210,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       return null;
                     },
                     onValueSaved: (value) {
-                      firstname = value;
+                      surname = value!;
                     },
                     label: 'Surname'),
                 const SizedBox(
@@ -227,7 +226,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       return null;
                     },
                     onValueSaved: (value) {
-                      firstname = value;
+                      email = value!;
                     },
                     label: 'Email'),
                 const SizedBox(
@@ -238,14 +237,13 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     children: [
                       Expanded(
                         child: CustomDropdown(
-                            items: programs.map((e) => e.programCode).toList(),
-                            value: programs.isNotEmpty
-                                ? programs[0].programCode
-                                : 'No programs',
-                            onChanged: (value) {
+                            items: programs,
+                            value:
+                                programs.isEmpty ? 'No Programs' : programs[0],
+                            onChanged: (String? value) {
                               if (value == null) return;
                               setState(() {
-                                program = value;
+                                selectedProgram = value;
                               });
                             },
                             label: 'Program'),
@@ -255,14 +253,12 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       ),
                       Expanded(
                         child: CustomDropdown(
-                            items: Campuses.values
-                                .map((e) => e.name.toUpperCase())
-                                .toList(),
-                            value: selectedCampus.name.toUpperCase(),
-                            onChanged: (value) {
+                            items: campuses,
+                            value: selectedCampus,
+                            onChanged: (String? value) {
                               if (value == null) return;
                               setState(() {
-                                campus = value;
+                                selectedCampus = value;
                               });
                             },
                             label: 'Campus'),
@@ -278,12 +274,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       Expanded(
                         child: CustomDropdown(
                             items: cohorts,
-                            value:
-                                cohorts.isNotEmpty ? cohorts[0] : 'No cohorts',
-                            onChanged: (value) {
-                              if (value == null) return;
+                            value: cohorts.isEmpty ? 'No cohorts' : cohorts[0],
+                            onChanged: (String? vaule) {
                               setState(() {
-                                cohort = value;
+                                selectedCohort = vaule!;
                               });
                             },
                             label: 'Cohort'),
@@ -293,14 +287,12 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       ),
                       Expanded(
                         child: CustomDropdown(
-                            items: Gender.values
-                                .map((e) => e.name.toUpperCase())
-                                .toList(),
-                            value: selectedGender.name.toUpperCase(),
-                            onChanged: (value) {
+                            items: genders,
+                            value: selectedGender,
+                            onChanged: (String? value) {
                               if (value == null) return;
                               setState(() {
-                                gender = value;
+                                selectedGender = value;
                               });
                             },
                             label: 'Gender'),
@@ -312,12 +304,14 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    _addUser(
-                      context,
-                      widget.userType.toLowerCase(),
-                    );
+                    !isLoading
+                        ? _addUser(
+                            context,
+                            widget.userType.toLowerCase(),
+                          )
+                        : null;
                   },
-                  child: addingUser
+                  child: isLoading
                       ? const SizedBox(
                           height: 16,
                           width: 16,

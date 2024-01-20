@@ -41,7 +41,7 @@ class _MyTextFormFiledState extends State<MyTextFormFiled> {
       keyboardType: widget.inputType,
       maxLines: widget.maxLines,
       onSaved: (value) {
-        widget.onValidate(value);
+        widget.onValueSaved(value);
       },
       validator: (enteredValue) {
         return widget.onValidate(enteredValue);
