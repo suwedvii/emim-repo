@@ -32,14 +32,15 @@ class AssignmentList extends StatelessWidget {
               children: [
                 Text(
                   assignments[index].assignmentTitle,
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(
-                  height: 3,
-                ),
+                const Divider(),
                 Row(
                   children: [
-                    const Text('Course:'),
+                    Text(
+                      'Course:',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     const SizedBox(
                       width: 6,
                     ),
@@ -47,11 +48,14 @@ class AssignmentList extends StatelessWidget {
                       assignments[index].course,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyLarge!
+                          .bodyMedium!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
-                    const Text('Deadline:'),
+                    Text(
+                      'Deadline:',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     const SizedBox(
                       width: 6,
                     ),
@@ -59,7 +63,7 @@ class AssignmentList extends StatelessWidget {
                       assignments[index].deadline,
                       style: Theme.of(context)
                           .textTheme
-                          .bodyLarge!
+                          .bodyMedium!
                           .copyWith(fontWeight: FontWeight.bold),
                     ),
                   ],
