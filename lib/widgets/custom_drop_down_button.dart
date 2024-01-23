@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class CustomDropdown extends StatefulWidget {
-  const CustomDropdown(
-      {super.key,
-      required this.items,
-      required this.value,
-      required this.onChanged,
-      required this.label});
+  const CustomDropdown({
+    super.key,
+    required this.items,
+    required this.value,
+    required this.onChanged,
+    required this.label,
+  });
 
   final List<String> items;
   final String value;
@@ -25,7 +26,7 @@ class _CustomDropdownState extends State<CustomDropdown> {
       items: widget.items.map((String item) {
         return DropdownMenuItem<String>(
           value: item,
-          child: Text(item),
+          child: Text(item.toUpperCase()),
         );
       }).toList(),
       onChanged: (value) {
@@ -36,7 +37,6 @@ class _CustomDropdownState extends State<CustomDropdown> {
         if (value == null || value.trim().isEmpty || value.contains('Select')) {
           return 'Please select a ${widget.label}';
         }
-
         return null;
       },
       decoration: InputDecoration(

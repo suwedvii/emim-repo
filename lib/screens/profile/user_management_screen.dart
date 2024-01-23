@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:emim/models/user.dart';
 import 'package:emim/screens/profile/add_user_screen.dart';
 import 'package:emim/widgets/profile/user_list.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -19,6 +20,7 @@ class UserManagementScreen extends ConsumerStatefulWidget {
 
 class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   List<MyUser> users = [];
+  List<Map<String, dynamic>> usersMapList = [];
 
   @override
   void initState() {
@@ -29,40 +31,52 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   void loadUsers() async {
     print('LoadUsers was called');
 
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
+    try {
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
 
-    final List<MyUser> userList = [];
+      final List<MyUser> userList = [];
+      List<Map<String, dynamic>>? retrievedUsersMap = [];
 
-    final response = await http.get(url);
+      final response = await http.get(url);
 
-    print(response.body);
+      print(response.body);
 
-    if (response.statusCode >= 400) {
-      print('Failed to fetch information from the database');
+      if (response.statusCode >= 400) {
+        print('Failed to fetch information from the database');
+      }
+
+      final Map<String, dynamic>? listData = json.decode(response.body);
+
+      print('Status code: ${response.statusCode}');
+
+      if (listData == null) return;
+
+      for (final user in listData.entries) {
+        // final id = user.key.toString();
+        // final username = user.value['username'];
+        // final email = user.value['emailAddress'];
+        // final password = user.value['password'];
+        // final role = user.value['role'];
+
+        userList.add(MyUser.fromMap(user.value));
+        retrievedUsersMap.add(user.value);
+        print(MyUser.fromMap(user.value));
+      }
+
+      setState(() {
+        users = userList;
+        usersMapList = retrievedUsersMap;
+        print(users.length);
+      });
+    } on FirebaseException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message!),
+        ),
+      );
     }
-
-    final Map<String, dynamic>? listData = json.decode(response.body);
-
-    print('Status code: ${response.statusCode}');
-
-    if (listData == null) return;
-
-    for (final user in listData.entries) {
-      // final id = user.key.toString();
-      // final username = user.value['username'];
-      // final email = user.value['emailAddress'];
-      // final password = user.value['password'];
-      // final role = user.value['role'];
-
-      userList.add(MyUser.fromMap(user.value));
-      print(MyUser.fromMap(user.value));
-    }
-
-    setState(() {
-      users = userList;
-      print(users.length);
-    });
   }
 
   void _openAddUserBottomModal(String userType) async {
@@ -87,6 +101,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   Widget build(BuildContext context) {
     print(users);
     Widget content = UserList(
+      userMap: usersMapList,
       users: users,
     );
     if (users.isEmpty) {

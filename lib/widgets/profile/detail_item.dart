@@ -11,12 +11,12 @@ class DetailItem extends StatelessWidget {
       children: [
         Text(
           '$title:',
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const Spacer(),
         Text(
-          '$description:',
-          style: Theme.of(context).textTheme.bodyMedium,
+          description,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
       ],
     );

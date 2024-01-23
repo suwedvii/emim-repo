@@ -69,11 +69,13 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       final user = MyUser(
               userId: 'userId',
               username: '${firstname[0]}.$surname',
+              emailAddress: email,
               password: password,
               firstName: firstname,
               lastName: surname,
               otherNames: othernames,
-              role: role)
+              role: role,
+              gender: selectedGender)
           .toJson();
 
       print('cohort is $selectedCohort');

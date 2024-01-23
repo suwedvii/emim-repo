@@ -3,9 +3,10 @@ import 'package:emim/widgets/profile/user_details.dart';
 import 'package:flutter/material.dart';
 
 class UserList extends StatelessWidget {
-  const UserList({super.key, required this.users});
+  const UserList({super.key, required this.users, required this.userMap});
 
   final List<MyUser> users;
+  final List<Map<String, dynamic>> userMap;
 
   void goToUserDetails(MyUser user, BuildContext context) async {
     Navigator.of(context).push<MyUser>(
@@ -20,6 +21,7 @@ class UserList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     print(users);
+    print(userMap);
 
     return ListView.builder(
         itemCount: users.length,

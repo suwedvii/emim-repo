@@ -3,8 +3,6 @@ import 'dart:convert';
 
 enum Gender { male, female, other }
 
-enum Titles { mr, ms, mrs, prof, dr, sir }
-
 class MyUser {
   String profilePicture;
   String userId;
@@ -39,7 +37,7 @@ class MyUser {
   String nokSourceOfIncome;
 
   MyUser({
-    this.profilePicture = '',
+    this.profilePicture = 'N/A',
     required this.userId,
     required this.username,
     required this.password,
@@ -47,29 +45,29 @@ class MyUser {
     required this.lastName,
     required this.otherNames,
     required this.role,
-    this.dateOfBirth = '',
-    this.idNumber = '',
-    this.gender = '',
-    this.title = '',
-    this.contactNumber = '',
-    this.emailAddress = '',
-    this.creationDate = '',
-    this.accountStatus = '',
-    this.homeDistrict = '',
-    this.homeTA = '',
-    this.homeVillage = '',
-    this.homeAddress = '',
-    this.district = '',
-    this.contactVillage = '',
-    this.contactTA = '',
-    this.contactDistrict = '',
-    this.contactAddress = '',
-    this.nationality = '',
-    this.nokName = '',
-    this.relationshipWithNok = '',
-    this.nokContactNumber = '',
-    this.nokAddress = '',
-    this.nokSourceOfIncome = '',
+    this.dateOfBirth = 'N/A',
+    this.idNumber = 'N/A',
+    this.gender = 'N/A',
+    this.title = 'N/A',
+    this.contactNumber = 'N/A',
+    this.emailAddress = 'N/A',
+    this.creationDate = 'N/A',
+    this.accountStatus = 'N/A',
+    this.homeDistrict = 'N/A',
+    this.homeTA = 'N/A',
+    this.homeVillage = 'N/A',
+    this.homeAddress = 'N/A',
+    this.district = 'N/A',
+    this.contactVillage = 'N/A',
+    this.contactTA = 'N/A',
+    this.contactDistrict = 'N/A',
+    this.contactAddress = 'N/A',
+    this.nationality = 'N/A',
+    this.nokName = 'N/A',
+    this.relationshipWithNok = 'N/A',
+    this.nokContactNumber = 'N/A',
+    this.nokAddress = 'N/A',
+    this.nokSourceOfIncome = 'N/A',
   });
 
   Map<String, dynamic> toMap() {

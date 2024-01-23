@@ -1,4 +1,6 @@
 import 'package:emim/models/user.dart';
+import 'package:emim/widgets/profile/detail_item.dart';
+import 'package:emim/widgets/profile/details_holder.dart';
 import 'package:flutter/material.dart';
 
 class UserDetails extends StatelessWidget {
@@ -8,6 +10,8 @@ class UserDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userMap = user.toMap();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('User Details | ${user.firstName} ${user.lastName}'),
@@ -16,7 +20,7 @@ class UserDetails extends StatelessWidget {
         child: Column(
           children: [
             Card(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: Container(
                 padding: const EdgeInsets.all(8),
                 child: Row(
@@ -46,7 +50,45 @@ class UserDetails extends StatelessWidget {
                   ],
                 ),
               ),
-            )
+            ),
+            DetailsHolder(
+                userMap: userMap,
+                holderTitle: 'contact details',
+                holderItems: [
+                  DetailItem(description: user.title, title: 'Title'),
+                  DetailItem(description: user.gender, title: 'Gender'),
+                  DetailItem(description: user.emailAddress, title: 'Email'),
+                  DetailItem(
+                      description: user.nationality, title: 'Natonality'),
+                  DetailItem(
+                      description: user.dateOfBirth, title: 'Date Of Birth'),
+                  DetailItem(
+                      description: user.contactAddress,
+                      title: 'Phyical Address'),
+                  DetailItem(description: user.contactTA, title: 'T/A'),
+                  DetailItem(
+                      description: user.contactDistrict, title: 'District'),
+                ]),
+            DetailsHolder(
+                userMap: userMap,
+                holderTitle: 'home details',
+                holderItems: [
+                  DetailItem(description: user.homeAddress, title: 'Address'),
+                  DetailItem(
+                      description: user.homeVillage, title: 'Village/Area'),
+                  DetailItem(description: user.homeTA, title: 'T/A'),
+                  DetailItem(description: user.homeDistrict, title: 'District'),
+                ]),
+            DetailsHolder(
+                userMap: userMap,
+                holderTitle: 'next of kin',
+                holderItems: [
+                  DetailItem(description: user.homeAddress, title: 'Address'),
+                  DetailItem(
+                      description: user.homeVillage, title: 'Village/Area'),
+                  DetailItem(description: user.homeTA, title: 'T/A'),
+                  DetailItem(description: user.homeDistrict, title: 'District'),
+                ])
           ],
         ),
       ),

@@ -9,14 +9,18 @@ class MyTextFormFiled extends StatefulWidget {
       required this.label,
       this.inputType,
       this.enteredText,
-      this.maxLines});
+      this.maxLines,
+      this.initialValue,
+      this.onTap});
 
   final Function(String? value) onValueSaved;
   final Function(String? value) onValidate;
+  final Function()? onTap;
   final String label;
   final TextInputType? inputType;
   final int? maxLines;
   String? enteredText;
+  String? initialValue;
 
   @override
   State<MyTextFormFiled> createState() {
@@ -38,6 +42,7 @@ class _MyTextFormFiledState extends State<MyTextFormFiled> {
               Radius.circular(8),
             ),
           )),
+      initialValue: widget.initialValue,
       keyboardType: widget.inputType,
       maxLines: widget.maxLines,
       onSaved: (value) {
@@ -45,6 +50,9 @@ class _MyTextFormFiledState extends State<MyTextFormFiled> {
       },
       validator: (enteredValue) {
         return widget.onValidate(enteredValue);
+      },
+      onTap: () {
+        widget.onTap;
       },
     );
   }
