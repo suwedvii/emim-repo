@@ -29,6 +29,7 @@ class _UpdateContactDetailsModalState extends State<UpdateContactDetailsModal> {
   String? enteredNationality;
   String? enteredDOB;
   String? enteredPhysicalAddress;
+  String? enteredPostalAddress;
   String selectedDistrict = '';
   String? selectedTa;
 
@@ -38,7 +39,8 @@ class _UpdateContactDetailsModalState extends State<UpdateContactDetailsModal> {
     enteredEmail = widget.user['emailAddress'];
     enteredNationality = widget.user['nationality'];
     enteredDOB = widget.user['dateOfBirth'];
-    enteredPhysicalAddress = widget.user['contactAddress'];
+    enteredPhysicalAddress = widget.user['contactPhysicalAddress'];
+    enteredPostalAddress = widget.user['contactPostalAddress'];
     selectedDistrict = widget.user['contactDistrict'] == 'N/A'
         ? districts[0].name
         : districts[widget.user['contactDistrict']].name;
@@ -61,23 +63,23 @@ class _UpdateContactDetailsModalState extends State<UpdateContactDetailsModal> {
     selectedTa = !traditionalAuthorities.contains(widget.user['contactTA'])
         ? traditionalAuthorities[0]
         : traditionalAuthorities[widget.user['contactTA']];
-    return Container(
-      margin: EdgeInsets.fromLTRB(16, 8, 16, keyboardSpace + 8),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-      child: Form(
-        key: form,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'UPDATE ${widget.detailCategory.toUpperCase()}',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyLarge!
-                  .copyWith(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            if (widget.detailCategory == 'contact details')
+    return SingleChildScrollView(
+      child: Container(
+        margin: EdgeInsets.fromLTRB(16, 8, 16, keyboardSpace + 8),
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+        child: Form(
+          key: form,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'UPDATE ${widget.detailCategory.toUpperCase()}',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
               Column(
                 children: [
                   CustomDropdown(
@@ -163,20 +165,34 @@ class _UpdateContactDetailsModalState extends State<UpdateContactDetailsModal> {
                   ),
                   const SizedBox(height: 8),
                   MyTextFormFiled(
+                      initialValue: enteredPostalAddress,
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            value.trim().length < 8) {
+                          return 'Enter a valide Postal Address';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        enteredPostalAddress = value;
+                      },
+                      label: 'Address'),
+                  const SizedBox(height: 8),
+                  MyTextFormFiled(
                       initialValue: enteredPhysicalAddress,
                       onValidate: (value) {
                         if (value == null ||
                             value.isEmpty ||
-                            value.trim().length < 8 ||
-                            !value.contains('@')) {
-                          return 'Enter a valide Phsical address';
+                            value.trim().length < 8) {
+                          return 'Enter a valide Phsical Address';
                         }
                         return null;
                       },
                       onValueSaved: (value) {
                         enteredPhysicalAddress = value;
                       },
-                      label: 'Phyisical Address'),
+                      label: 'Village/Area'),
                   const SizedBox(height: 8),
                   CustomDropdown(
                       items:
@@ -204,15 +220,8 @@ class _UpdateContactDetailsModalState extends State<UpdateContactDetailsModal> {
                       label: 'T/A'),
                 ],
               ),
-            if (widget.detailCategory == 'contact details')
-              Column(
-                children: [],
-              ),
-            if (widget.detailCategory == 'contact details')
-              Column(
-                children: [],
-              )
-          ],
+            ],
+          ),
         ),
       ),
     );

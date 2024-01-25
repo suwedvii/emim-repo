@@ -63,8 +63,10 @@ class UserDetails extends StatelessWidget {
                   DetailItem(
                       description: user.dateOfBirth, title: 'Date Of Birth'),
                   DetailItem(
-                      description: user.contactAddress,
-                      title: 'Phyical Address'),
+                      description: user.contactPostalAddress, title: 'Address'),
+                  DetailItem(
+                      description: user.contactPhysicalAddress,
+                      title: 'Village/Area'),
                   DetailItem(description: user.contactTA, title: 'T/A'),
                   DetailItem(
                       description: user.contactDistrict, title: 'District'),
@@ -81,13 +83,24 @@ class UserDetails extends StatelessWidget {
                 ]),
             DetailsHolder(
                 userMap: userMap,
-                holderTitle: 'next of kin',
+                holderTitle: 'next of kin details',
                 holderItems: [
-                  DetailItem(description: user.homeAddress, title: 'Address'),
+                  DetailItem(description: user.nokName, title: 'Full Name'),
                   DetailItem(
-                      description: user.homeVillage, title: 'Village/Area'),
-                  DetailItem(description: user.homeTA, title: 'T/A'),
-                  DetailItem(description: user.homeDistrict, title: 'District'),
+                      description: user.nokContactNumber,
+                      title: 'Phonr Number'),
+                  DetailItem(description: user.nokAddress, title: 'Address'),
+                  DetailItem(
+                      description: user.nokPhysicalAddress,
+                      title: 'Village/Area'),
+                  DetailItem(description: user.nokTa, title: 'T/A'),
+                  DetailItem(description: user.nokDistrict, title: 'District'),
+                  DetailItem(
+                      description: user.relationshipWithNok,
+                      title: 'Relationship'),
+                  DetailItem(
+                      description: user.nokSourceOfIncome,
+                      title: 'Source of Income'),
                 ])
           ],
         ),

@@ -37,11 +37,15 @@ class Student extends MyUser {
       super.contactVillage = '',
       super.contactTA = '',
       super.contactDistrict = '',
-      super.contactAddress = '',
+      super.contactPhysicalAddress = '',
+      super.contactPostalAddress,
       super.nationality = '',
       super.nokName = '',
       super.relationshipWithNok = '',
       super.nokContactNumber = '',
+      super.nokPhysicalAddress = '',
       super.nokAddress = '',
+      super.nokTa = '',
+      super.nokDistrict = '',
       super.nokSourceOfIncome = ''});
 }

@@ -28,12 +28,16 @@ class MyUser {
   String contactVillage;
   String contactTA;
   String contactDistrict;
-  String contactAddress;
+  String contactPhysicalAddress;
+  String contactPostalAddress;
   String nationality;
   String nokName;
   String relationshipWithNok;
   String nokContactNumber;
   String nokAddress;
+  String nokPhysicalAddress;
+  String nokTa;
+  String nokDistrict;
   String nokSourceOfIncome;
 
   MyUser({
@@ -61,12 +65,16 @@ class MyUser {
     this.contactVillage = 'N/A',
     this.contactTA = 'N/A',
     this.contactDistrict = 'N/A',
-    this.contactAddress = 'N/A',
+    this.contactPhysicalAddress = 'N/A',
+    this.contactPostalAddress = 'N/A',
     this.nationality = 'N/A',
     this.nokName = 'N/A',
     this.relationshipWithNok = 'N/A',
     this.nokContactNumber = 'N/A',
+    this.nokPhysicalAddress = 'N/A',
     this.nokAddress = 'N/A',
+    this.nokTa = 'N/A',
+    this.nokDistrict = 'N/A',
     this.nokSourceOfIncome = 'N/A',
   });
 
@@ -96,12 +104,16 @@ class MyUser {
       'contactVillage': contactVillage,
       'contactTA': contactTA,
       'contactDistrict': contactDistrict,
-      'contactAddress': contactAddress,
+      'contactPhysicalAddress': contactPhysicalAddress,
+      'contactPostalAddress': contactPostalAddress,
       'nationality': nationality,
       'nokName': nokName,
       'relationshipWithNok': relationshipWithNok,
       'nokContactNumber': nokContactNumber,
       'nokAddress': nokAddress,
+      'nokPhysicalAddress': nokPhysicalAddress,
+      'nokTa': nokTa,
+      'nokDistrict': nokDistrict,
       'nokSourceOfIncome': nokSourceOfIncome,
     };
   }
@@ -132,12 +144,16 @@ class MyUser {
       contactVillage: map['contactVillage'] as String,
       contactTA: map['contactTA'] as String,
       contactDistrict: map['contactDistrict'] as String,
-      contactAddress: map['contactAddress'] as String,
+      contactPhysicalAddress: map['contactPhysicalAddress'] as String,
+      contactPostalAddress: map['contactPostalAddress'] as String,
       nationality: map['nationality'] as String,
       nokName: map['nokName'] as String,
       relationshipWithNok: map['relationshipWithNok'] as String,
       nokContactNumber: map['nokContactNumber'] as String,
       nokAddress: map['nokAddress'] as String,
+      nokPhysicalAddress: map['nokPhysicalAddress'] as String,
+      nokTa: map['nokTa'] as String,
+      nokDistrict: map['nokDistrict'] as String,
       nokSourceOfIncome: map['nokSourceOfIncome'] as String,
     );
   }
