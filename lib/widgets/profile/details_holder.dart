@@ -30,7 +30,7 @@ class DetailsHolder extends StatelessWidget {
       );
     }
 
-    final result = showModalBottomSheet<Map<String, dynamic>>(
+    showModalBottomSheet<Map<String, dynamic>>(
         useSafeArea: true,
         isScrollControlled: true,
         context: context,

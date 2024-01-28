@@ -79,7 +79,7 @@ class _UpdateHomeDetailsModalState extends State<UpdateHomeDetailsModal> {
               items: districts.map((district) => district.name).toList(),
               value: selectedDistrict == 'N/A'
                   ? 'Select District'
-                  : selectedDistrict!,
+                  : selectedDistrict,
               onChanged: (String? value) {
                 if (value == null) return;
                 setState(() {

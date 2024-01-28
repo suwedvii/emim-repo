@@ -19,6 +19,7 @@ class UserManagementScreen extends ConsumerStatefulWidget {
 }
 
 class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
+  bool isLoading = true;
   List<MyUser> users = [];
   List<Map<String, dynamic>> usersMapList = [];
 
@@ -67,6 +68,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
       setState(() {
         users = userList;
         usersMapList = retrievedUsersMap;
+        isLoading = false;
         print(users.length);
       });
     } on FirebaseException catch (error) {
@@ -100,18 +102,22 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   @override
   Widget build(BuildContext context) {
     print(users);
-    Widget content = UserList(
-      userMap: usersMapList,
-      users: users,
-    );
-    if (users.isEmpty) {
-      content = Center(
-        child: Text(
-          'No users found',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      );
-    }
+    Widget content = isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
+          )
+        : UserList(
+            userMap: usersMapList,
+            users: users,
+          );
+    // if (users.isEmpty) {
+    //   content = Center(
+    //     child: Text(
+    //       'No users found',
+    //       style: Theme.of(context).textTheme.bodyLarge,
+    //     ),
+    //   );
+    // }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Users'),

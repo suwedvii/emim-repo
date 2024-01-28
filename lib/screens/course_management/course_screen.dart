@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:emim/models/program.dart';
+import 'package:emim/screens/course_management/program_list.dart';
 import 'package:emim/widgets/add_faculty_modal.dart';
 import 'package:emim/widgets/add_program_modal.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,15 @@ class CourseScreen extends ConsumerStatefulWidget {
 class _CourseScreenState extends ConsumerState<CourseScreen> {
   List<Program> programs = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPrograms();
+    print(programs);
+  }
+
   void _loadPrograms() async {
+    List<Program> retrievedPrograms = [];
     final url =
         Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
 
@@ -45,7 +54,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       final Map<String, dynamic> listData = decodedData;
 
       for (final program in listData.entries) {
-        programs.add(
+        retrievedPrograms.add(
           Program(
               programId: program.key,
               description: program.value['description'],
@@ -55,6 +64,10 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
               programName: program.value['programName']),
         );
       }
+
+      setState(() {
+        programs = retrievedPrograms;
+      });
     } catch (error) {
       print(error);
     }
@@ -120,12 +133,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
         ],
         animatedIcon: AnimatedIcons.menu_close,
       ),
-      body: const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [Text('Opps, nothing here!')],
-        ),
-      ),
+      body: ProgramList(programs: programs),
     );
 
     // if (widget.appBarTitle == null) {
