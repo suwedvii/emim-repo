@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:emim/models/program.dart';
+import 'package:emim/widgets/custom_drop_down_button.dart';
+import 'package:emim/widgets/my_text_form_field.dart';
 // import 'package:emim/providers/faculties_provider.dart';
 // import 'package:emim/widgets/drop_down_button.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +25,8 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   String programCode = '';
   String programName = '';
   String description = '';
-  String? selectedFaculty;
+  String selectedFaculty = '';
+  int semesters = 0;
 
   List<String> fetchedFaculties = ['Select Faculty'];
 
@@ -61,10 +64,15 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   void _addProgram(BuildContext context) async {
     if (formKey.currentState!.validate()) {
       formKey.currentState!.save();
-      print(programCode);
-      print(programName);
-      print(selectedFaculty);
-      print(programDuration);
+
+      final newProgram = Program(
+              description: description,
+              faculty: selectedFaculty,
+              programCode: programCode,
+              programName: programName,
+              semesters: semesters,
+              duration: programDuration)
+          .toJson();
 
       final currentContext = context;
 
@@ -75,13 +83,7 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
         final response = await http.post(
           url,
           headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'programCode': programCode,
-            'programName': programName,
-            'description': description,
-            'faculty': selectedFaculty,
-            'duration': programDuration
-          }),
+          body: newProgram,
         );
 
         if (currentContext.mounted) {
@@ -90,9 +92,10 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
                 programId: response.body,
                 description: description,
                 duration: programDuration,
-                faculty: selectedFaculty.toString(),
+                faculty: selectedFaculty,
                 programCode: programCode,
-                programName: programName),
+                programName: programName,
+                semesters: semesters),
           );
         }
       } catch (error) {
@@ -109,15 +112,7 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
 
   @override
   Widget build(BuildContext context) {
-    selectedFaculty = fetchedFaculties[0];
-
     double keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
-
-    // List<String>? facuties = ref.read(facultiesProvider);
-
-    if (fetchedFaculties.isEmpty) {
-      fetchedFaculties = ['No Faculties'];
-    }
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 30),
@@ -141,153 +136,92 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
                     height: 8,
                   ),
                   // TextField(
-                  TextFormField(
-                      // controller: programNameController,
-                      validator: (programName) {
-                        if (programName == null ||
-                            programName.isEmpty ||
-                            programName.trim().length < 5) {
-                          return 'Must be atleast 5 Characters!';
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            value.trim().length < 8) {
+                          return 'Please enter a valid Program Name with Characters not less than 8';
+                        }
+
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        programName = value!;
+                      },
+                      label: 'Program Name'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a valid Program Code with Characters not less than 1';
+                        }
+
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        programCode = value!;
+                      },
+                      label: 'Program Code'),
+                  const SizedBox(height: 8),
+                  MyTextFormFiled(
+                      inputType: TextInputType.number,
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            int.parse(value.trim().toString()) == 0) {
+                          return 'Please enter a valid number of semesters for this program';
                         }
                         return null;
                       },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(8),
-                          ),
-                        ),
-                        label: Text('Program Name'),
-                      ),
-                      keyboardType: TextInputType.text,
-                      onSaved: (name) {
-                        programName = name!;
-                      }),
+                      onValueSaved: (vallue) {
+                        semesters = int.parse(vallue!);
+                      },
+                      label: 'Semesters'),
                   const SizedBox(
                     height: 8,
                   ),
-                  // const SizedBox(
-                  //   height: 2,
-                  // ),
-                  // TextField(
-                  TextFormField(
-                    // controller: programNameController,
-                    validator: (programCode) {
-                      if (programCode == null ||
-                          programCode.isEmpty ||
-                          programCode.trim().length < 5) {
-                        return 'Must be atleast 5 Characters!';
-                      }
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                      label: Text('Program Code'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                      ),
-                    ),
-                    maxLines: 1,
-                    keyboardType: TextInputType.text,
-                    onSaved: (code) {
-                      programCode = code!;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  TextFormField(
-                    // controller: programNameController,
-                    validator: (description) {
-                      if (description == null ||
-                          description.isEmpty ||
-                          description.trim().length < 5) {
-                        return 'Must be atleast 5 Characters!';
-                      }
-                      return null;
-                    },
-                    decoration: const InputDecoration(
-                      alignLabelWithHint: true,
-                      label: Text('Description'),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                      ),
-                    ),
-                    maxLines: 3,
-                    keyboardType: TextInputType.text,
-                    onSaved: (enteredDescription) {
-                      description = enteredDescription!;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Column(
-                    children: [
-                      // MyDropDownButton(items: facuties, label: 'Faculty'),
-                      DropdownButtonFormField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          value: selectedFaculty,
-                          items: fetchedFaculties
-                              .map(
-                                (e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e),
-                                ),
-                              )
-                              .toList(),
-                          // items: [
-                          //   for (final faculty in fetchedFaculties)
-                          //     DropdownMenuItem(
-                          //       value: faculty,
-                          //       child: Text(faculty),
-                          //     ),
-                          // ],
-                          onChanged: (faculty) {
-                            if (faculty == null || faculty == 'No Faculties') {
-                              return;
-                            }
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            value.trim().length < 15) {
+                          return 'Please enter a valid program description with Characters not less than 15';
+                        }
 
-                            setState(() {
-                              selectedFaculty = faculty;
-                            });
-                          }),
-                      const SizedBox(
-                        height: 8,
-                      ),
-                      // const Spacer(),
-                      // MyDropDownButton(items: durations, label: 'Duration')
-                      DropdownButtonFormField(
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          value: programDuration,
-                          items: [
-                            for (final duration in durations)
-                              DropdownMenuItem(
-                                value: duration,
-                                child: Text(duration),
-                              ),
-                          ],
-                          onChanged: (duration) {
-                            if (duration == null) {
-                              return;
-                            }
-                            setState(() {
-                              programDuration = duration;
-                            });
-                          }),
-                    ],
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        description = value!;
+                      },
+                      label: 'Description'),
+                  const SizedBox(
+                    height: 8,
                   ),
+                  // MyDropDownButton(items: facuties, label: 'Faculty'),
+                  CustomDropdown(
+                      items: fetchedFaculties,
+                      value: fetchedFaculties.isEmpty
+                          ? 'No Falcuties'
+                          : fetchedFaculties[0],
+                      onChanged: (value) {
+                        selectedFaculty = value!;
+                      },
+                      label: 'Falcuty'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  CustomDropdown(
+                      items: durations,
+                      value: fetchedFaculties.isEmpty
+                          ? 'No Durations'
+                          : durations[0],
+                      onChanged: (value) {
+                        programDuration = value!;
+                      },
+                      label: 'Duration'),
                   const SizedBox(
                     height: 8,
                   ),

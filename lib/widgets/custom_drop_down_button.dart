@@ -31,7 +31,9 @@ class _CustomDropdownState extends State<CustomDropdown> {
       }).toList(),
       onChanged: (value) {
         if (value == null) return;
-        widget.onChanged(value);
+        setState(() {
+          widget.onChanged(value);
+        });
       },
       validator: (value) {
         if (value == null || value.trim().isEmpty || value.contains('Select')) {

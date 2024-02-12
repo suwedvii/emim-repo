@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:emim/models/program.dart';
 import 'package:emim/screens/course_management/program_list.dart';
-import 'package:emim/widgets/add_faculty_modal.dart';
+import 'package:emim/widgets/add_faculty_and_cohort_modal.dart';
 import 'package:emim/widgets/add_program_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +22,7 @@ class CourseScreen extends ConsumerStatefulWidget {
 
 class _CourseScreenState extends ConsumerState<CourseScreen> {
   List<Program> programs = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -55,18 +56,14 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
       for (final program in listData.entries) {
         retrievedPrograms.add(
-          Program(
-              programId: program.key,
-              description: program.value['description'],
-              duration: program.value['duration'],
-              faculty: program.value['faculty'],
-              programCode: program.value['programCode'],
-              programName: program.value['programName']),
+          Program.fromMap(program.value),
         );
       }
 
       setState(() {
         programs = retrievedPrograms;
+        print(programs.length);
+        isLoading = false;
       });
     } catch (error) {
       print(error);
@@ -75,11 +72,11 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
   void _openAddFacultyBottomSheet(String mode) {
     showModalBottomSheet(
-      isDismissible: false,
+      // isDismissible: false,
       isScrollControlled: true,
       useSafeArea: true,
       context: context,
-      builder: (ctx) => AddFacultyModal(mode: mode),
+      builder: (ctx) => AddFacultyAndCohortModal(mode: mode),
     );
   }
 
@@ -133,7 +130,9 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
         ],
         animatedIcon: AnimatedIcons.menu_close,
       ),
-      body: ProgramList(programs: programs),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ProgramList(programs: programs),
     );
 
     // if (widget.appBarTitle == null) {

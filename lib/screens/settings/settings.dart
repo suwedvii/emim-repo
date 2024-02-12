@@ -1,3 +1,4 @@
+import 'package:emim/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -31,7 +32,9 @@ class _SettingsState extends State<Settings> {
           TextButton(
             onPressed: () {
               FirebaseAuth.instance.signOut();
-              Navigator.of(ctx).pop(); // Close the dialog
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (ctx) => const App()));
+              // Close the dialog
             },
             child: const Text('Yes'),
           ),
@@ -39,6 +42,8 @@ class _SettingsState extends State<Settings> {
       ),
     );
   }
+
+  void _changePAssword() {}
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +54,13 @@ class _SettingsState extends State<Settings> {
       body: Column(
         children: [
           ListTile(
-            title: const Text('Log Out'),
-            subtitle: const Text('Clear Log in record'),
+            title: Text(
+              'Log Out',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            subtitle: const Text('Sign out the current user'),
             trailing: const Icon(Icons.exit_to_app_rounded),
             onTap: _logOutUser,
           ),
@@ -58,7 +68,23 @@ class _SettingsState extends State<Settings> {
             height: 3,
             indent: 8,
             endIndent: 8,
-          )
+          ),
+          ListTile(
+            title: Text(
+              'Change Password',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            subtitle: const Text('Change your cureent password'),
+            trailing: const Icon(Icons.lock_reset),
+            onTap: _changePAssword,
+          ),
+          const Divider(
+            height: 3,
+            indent: 8,
+            endIndent: 8,
+          ),
         ],
       ),
       // Add your settings-related UI components here

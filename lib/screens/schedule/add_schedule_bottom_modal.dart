@@ -72,6 +72,16 @@ class _AddScheduleButtomModalState extends State<AddScheduleButtomModal> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              Text(
+                ('Add ${widget.mode}').toUpperCase(),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge!
+                    .copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 8,
+              ),
               CustomDropdown(
                   items: Campuses.values.map((e) => e.name).toList(),
                   value: campus.name,

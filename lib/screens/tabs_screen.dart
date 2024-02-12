@@ -1,7 +1,7 @@
 import 'package:emim/screens/assignments/assignments_screen.dart';
 import 'package:emim/screens/campus_map/campus_map.dart';
 import 'package:emim/screens/communication/chats_screen.dart';
-import 'package:emim/screens/course_management/course_screen.dart';
+import 'package:emim/screens/course_management/course_management_screen.dart';
 import 'package:emim/screens/payments/payments.dart';
 import 'package:emim/screens/profile/profile_screen.dart';
 import 'package:emim/screens/reports/reports.dart';
@@ -9,10 +9,13 @@ import 'package:emim/screens/schedule/schedule_screen.dart';
 import 'package:emim/screens/settings/settings.dart';
 import 'package:emim/widgets/image_slider.dart';
 import 'package:emim/widgets/main_drawer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class TabsScreen extends StatefulWidget {
-  const TabsScreen({super.key});
+  const TabsScreen({super.key, this.user});
+
+  final User? user;
 
   @override
   State<StatefulWidget> createState() {
@@ -28,6 +31,12 @@ class _TabsScreenState extends State<TabsScreen> {
     'assets/images/msg_slide_img_4.jpg',
     'assets/images/msg_slide_img_5.jpg',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.user?.email);
+  }
 
   int currentScreenIndex = 0;
 

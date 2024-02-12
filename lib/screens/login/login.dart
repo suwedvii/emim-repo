@@ -26,11 +26,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       try {
         final result = await auth.signInWithEmailAndPassword(
             email: enteredEmail!, password: enteredPassword!);
-        if (result.additionalUserInfo == null) return;
+        if (result.additionalUserInfo == null) return null;
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (ctx) => const TabsScreen(),
+            builder: (ctx) => TabsScreen(user: result.user),
           ),
         );
       } on FirebaseException catch (error) {
