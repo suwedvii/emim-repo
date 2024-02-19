@@ -1,4 +1,5 @@
 import 'package:emim/models/bulding.dart';
+import 'package:emim/screens/schedule/add_building_modal.dart';
 import 'package:emim/screens/schedule/building_details_item.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,15 @@ class _ManageRoomsScreenState extends State<ManageRoomsScreen> {
         onBuidldingUpdated: _loadBuildings,
         building: building,
       ),
+    );
+  }
+
+  void _openAddBuildingBottomModal() {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      useSafeArea: true,
+      context: context,
+      builder: (ctx) => const AddBuildingModal(),
     );
   }
 
@@ -110,10 +120,13 @@ class _ManageRoomsScreenState extends State<ManageRoomsScreen> {
       );
     }
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Room Management'),
-      ),
-      body: content,
-    );
+        appBar: AppBar(
+          title: const Text('Room Management'),
+        ),
+        body: content,
+        floatingActionButton: FloatingActionButton(
+          onPressed: _openAddBuildingBottomModal,
+          child: const Icon(Icons.add),
+        ));
   }
 }

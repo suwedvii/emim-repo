@@ -51,7 +51,7 @@ dependencies:
   build_runner: ^2.1.7
   json_annotation: ^4.6.0
   firebase_storage: ^11.6.0
-  firebase_database: ^10.4.1
+  firebase_database: ^10.4.5
 
 dev_dependencies:
   flutter_test:
