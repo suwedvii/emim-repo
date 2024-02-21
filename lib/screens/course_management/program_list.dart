@@ -33,13 +33,31 @@ class ProgramList extends StatelessWidget {
                       .bodyLarge!
                       .copyWith(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-                const Divider(height: 1),
+                Divider(
+                  indent: 32,
+                  endIndent: 32,
+                  thickness: 2,
+                  color: Theme.of(context).colorScheme.primary,
+                  // height: 8,
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
                 Text(
                   programs[index].programName,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
-                const Divider(height: 5),
+                Divider(
+                  indent: 32,
+                  endIndent: 32,
+                  thickness: 2,
+                  color: Theme.of(context).colorScheme.primary,
+                  // height: 2,
+                ),
+                const SizedBox(
+                  height: 8,
+                ),
                 Text(
                   programs[index].faculty,
                   style: Theme.of(context).textTheme.labelMedium,
