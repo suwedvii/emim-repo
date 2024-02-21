@@ -1,6 +1,6 @@
 import 'package:emim/models/block.dart';
 import 'package:emim/screens/schedule/add_building_modal.dart';
-import 'package:emim/screens/schedule/block_details_modal.dart';
+import 'package:emim/screens/schedule/building_details_modal.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:flutter/material.dart';
@@ -26,12 +26,12 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
     );
   }
 
-  void _openBuildingDetails(String name, Block building) {
+  void _openBuildingDetails(Block building) {
     showModalBottomSheet(
       isScrollControlled: true,
       useSafeArea: true,
       context: context,
-      builder: (ctx) => BlockDetailsModal(name: name, building: building),
+      builder: (ctx) => BlockDetailsModal(building: building),
     );
   }
 
@@ -52,7 +52,7 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
 
                 return GestureDetector(
                   onTap: () {
-                    _openBuildingDetails(building.name, building);
+                    _openBuildingDetails(building);
                   },
                   child: Card(
                     margin:
@@ -65,8 +65,8 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
                             .titleLarge!
                             .copyWith(fontWeight: FontWeight.bold),
                       ),
-                      trailing: Text(building.campus),
-                      subtitle: Text(building.id),
+                      trailing: Text('Campus: ${building.campus}'),
+                      subtitle: Text('Rooms: ${building.rooms!.length}'),
                     ),
                   ),
                 );

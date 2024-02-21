@@ -34,35 +34,12 @@ class _AddBuildingModalState extends State<AddBuildingModal> {
         setState(() {
           isLoading = true;
         });
-        final task = ref.push().set(building.toMap()).whenComplete(() {
+        ref.child(id).set(building.toMap()).whenComplete(() {
           setState(() {
             isLoading = false;
             Navigator.of(ctx).pop();
           });
         });
-
-        // task.whenComplete(() {
-        //   Navigator.of(ctx).pop();
-        // });
-
-        // task.onError((error, stackTrace) {
-        //   print(stackTrace);
-        //   setState(() {
-        //     isLoading = false;
-        //   });
-        //   showDialog(
-        //       context: ctx,
-        //       builder: (ctx2) => AlertDialog(
-        //             content: Text(error.toString()),
-        //             actions: [
-        //               TextButton(
-        //                   onPressed: () {
-        //                     Navigator.of(ctx2).pop();
-        //                   },
-        //                   child: const Text('OK'))
-        //             ],
-        //           ));
-        // });
       }
     } on FirebaseException catch (exception) {
       print(exception);

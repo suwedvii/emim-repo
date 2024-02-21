@@ -6,9 +6,9 @@ class Room {
   String name;
   int capacity;
   Room({
-    required this.id,
-    required this.name,
-    required this.capacity,
+    this.id = 'N/A',
+    this.name = 'N/A',
+    this.capacity = 0,
   });
 
   Room copyWith({
