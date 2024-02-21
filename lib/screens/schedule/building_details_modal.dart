@@ -152,6 +152,16 @@ class _BlockDetailsModalState extends State<BlockDetailsModal> {
           const SizedBox(
             height: 8,
           ),
+          Text(
+            'Add Room',
+            style: Theme.of(context)
+                .textTheme
+                .titleMedium!
+                .copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
           Container(
             padding: const EdgeInsets.only(left: 8.0),
             decoration: BoxDecoration(

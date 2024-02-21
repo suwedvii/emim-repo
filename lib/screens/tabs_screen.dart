@@ -5,6 +5,7 @@ import 'package:emim/screens/course_management/course_management_screen.dart';
 import 'package:emim/screens/payments/payments.dart';
 import 'package:emim/screens/profile/profile_screen.dart';
 import 'package:emim/screens/reports/reports.dart';
+import 'package:emim/screens/schedule/room_management_screen.dart';
 import 'package:emim/screens/schedule/schedule_screen.dart';
 import 'package:emim/screens/settings/settings.dart';
 import 'package:emim/widgets/image_slider.dart';
@@ -48,6 +49,8 @@ class _TabsScreenState extends State<TabsScreen> {
       content = Reports(title: itemName);
     } else if (itemName == 'campus map') {
       content = CampusMap(title: itemName);
+    } else if (itemName == 'room management') {
+      content = const RoomManagementScreen();
     } else {
       content = Payments(title: itemName);
     }

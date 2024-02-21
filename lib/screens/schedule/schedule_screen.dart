@@ -42,12 +42,6 @@ class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
       overlayOpacity: 0.1,
       children: [
         SpeedDialChild(
-          label: 'Manage Rooms',
-          child: const Icon(Icons.room_preferences_outlined),
-          elevation: 2,
-          onTap: _goToManageRoomsScreem,
-        ),
-        SpeedDialChild(
             label: 'Add Makeup Class',
             child: const Icon(Icons.schedule_send),
             elevation: 2,
