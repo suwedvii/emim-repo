@@ -1,4 +1,4 @@
-import 'package:emim/models/user.dart';
+import 'package:emim/models/my_user.dart';
 import 'package:emim/widgets/profile/detail_item.dart';
 import 'package:emim/widgets/profile/details_holder.dart';
 import 'package:flutter/material.dart';

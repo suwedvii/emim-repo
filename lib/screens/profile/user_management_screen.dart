@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:emim/models/user.dart';
+import 'package:emim/models/my_user.dart';
 import 'package:emim/screens/profile/add_user_screen.dart';
 import 'package:emim/widgets/profile/user_list.dart';
 import 'package:firebase_core/firebase_core.dart';

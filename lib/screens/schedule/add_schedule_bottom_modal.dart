@@ -1,6 +1,7 @@
-import 'package:emim/models/bulding.dart';
+import 'package:emim/models/building.dart';
 import 'package:emim/models/schedule.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class AddScheduleButtomModal extends StatefulWidget {
@@ -13,41 +14,48 @@ class AddScheduleButtomModal extends StatefulWidget {
 }
 
 class _AddScheduleButtomModalState extends State<AddScheduleButtomModal> {
+  bool isLoading = true;
   final List<Schedule> schedules = [];
+  late DatabaseReference buildingsRef;
 
   Campuses campus = Campuses.blantyre;
   String selectedCampus = '';
   String selectedBuilding = 'Chikanda';
   String selectedroom = '';
-
-  List<Building> buildings = [];
-
-  List<String> rooms = [];
-
   String? course;
   String? weekDay;
-
   String? room;
-  final listOfBuildings = getBuildings();
+
+  List<Building> buildings = [];
+  List<String> rooms = [];
 
   final formKey = GlobalKey<FormState>();
 
-  List<DropdownMenuItem<Campuses>> campusItems = Campuses.values.map((campus) {
-    return DropdownMenuItem(
-      value: campus,
-      child: Text(
-        campus.toString(),
-      ),
-    );
-  }).toList();
+  void _getBuildings() {
+    buildingsRef = FirebaseDatabase.instance.ref().child('buildings');
 
-  final courses = [
-    'BICT 1',
-    'BICT 2',
-    'BICT 3',
-    'BICT 4',
-    'BICT 5',
-  ];
+    List<Building> retrivedBuildings = [];
+
+    buildingsRef.onValue.listen((event) {
+      for (final building in event.snapshot.children) {
+        final retrivedBuilding = Building().fromSnapShot(building);
+        setState(() {
+          retrivedBuildings.add(retrivedBuilding);
+        });
+      }
+    });
+
+    setState(() {
+      buildings = retrivedBuildings;
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _getBuildings();
+  }
 
   @override
   void dispose() {
@@ -59,12 +67,13 @@ class _AddScheduleButtomModalState extends State<AddScheduleButtomModal> {
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
 
-    buildings = dummyBuildings
-        .where((building) => building.campus.name == selectedCampus)
-        .toList();
-
-    rooms = dummyBuildings.firstWhere((e) => e.name == selectedBuilding).rooms;
-
+    if (buildings.isNotEmpty) {
+      rooms = buildings
+          .firstWhere((building) => building.name == selectedBuilding)
+          .rooms!
+          .map((room) => room.name)
+          .toList();
+    }
     return Container(
       margin: EdgeInsets.fromLTRB(16, 8, 16, keyboardSpace + 8),
       padding: const EdgeInsets.only(top: 16),

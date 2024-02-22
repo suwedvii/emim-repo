@@ -1,4 +1,4 @@
-import 'package:emim/models/block.dart';
+import 'package:emim/models/building.dart';
 import 'package:emim/screens/room_management/add_building_modal.dart';
 import 'package:emim/screens/room_management/building_details_modal.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -15,7 +15,7 @@ class RoomManagementScreen extends StatefulWidget {
 class _RoomManagementScreenState extends State<RoomManagementScreen> {
   DatabaseReference query = FirebaseDatabase.instance.ref().child('buildings');
   bool isLoading = true;
-  List<Block> buildings = [];
+  List<Building> buildings = [];
 
   void _openAddBuildingBottomModal() {
     showModalBottomSheet(
@@ -26,7 +26,7 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
     );
   }
 
-  void _openBuildingDetails(Block building) {
+  void _openBuildingDetails(Building building) {
     showModalBottomSheet(
       isScrollControlled: true,
       useSafeArea: true,
@@ -38,7 +38,7 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
   void _getBuildings() {
     query.onValue.listen((event) {
       for (final building in event.snapshot.children) {
-        final retrivedBuilding = Block().fromSnapShot(building);
+        final retrivedBuilding = Building().fromSnapShot(building);
         setState(() {
           buildings.add(retrivedBuilding);
         });
@@ -68,7 +68,7 @@ class _RoomManagementScreenState extends State<RoomManagementScreen> {
               : FirebaseAnimatedList(
                   query: query,
                   itemBuilder: (ctx, snapshot, animation, index) {
-                    final building = Block().fromSnapShot(snapshot);
+                    final building = Building().fromSnapShot(snapshot);
 
                     return GestureDetector(
                       onTap: () {

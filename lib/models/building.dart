@@ -4,13 +4,16 @@ import 'dart:convert';
 import 'package:emim/models/room.dart';
 import 'package:firebase_database/firebase_database.dart';
 
-class Block {
+enum Campuses { blantyre, lilongwe }
+
+class Building {
   String id;
   String name;
   String campus;
   List<Room>? rooms;
 
-  Block({this.id = 'N/A', this.name = 'N/A', this.campus = 'N/A', this.rooms});
+  Building(
+      {this.id = 'N/A', this.name = 'N/A', this.campus = 'N/A', this.rooms});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -21,8 +24,8 @@ class Block {
     };
   }
 
-  factory Block.fromMap(Map<String, dynamic> map) {
-    return Block(
+  factory Building.fromMap(Map<String, dynamic> map) {
+    return Building(
       id: map['id'] as String,
       name: map['name'] as String,
       campus: map['campus'] as String,
@@ -33,10 +36,10 @@ class Block {
 
   String toJson() => json.encode(toMap());
 
-  factory Block.fromJson(String source) =>
-      Block.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory Building.fromJson(String source) =>
+      Building.fromMap(json.decode(source) as Map<String, dynamic>);
 
-  Block fromSnapShot(DataSnapshot snapshot) => Block(
+  Building fromSnapShot(DataSnapshot snapshot) => Building(
         id: snapshot.child('id').value.toString(),
         name: snapshot.child('name').value.toString(),
         campus: snapshot.child('campus').value.toString(),

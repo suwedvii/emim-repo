@@ -4,6 +4,7 @@ import 'dart:convert';
 enum Gender { male, female, other }
 
 class MyUser {
+  String uuid;
   String profilePicture;
   String userId;
   String username;
@@ -39,9 +40,15 @@ class MyUser {
   String nokTa;
   String nokDistrict;
   String nokSourceOfIncome;
+  String userCampus;
+  String userProgram;
+  String userCohort;
+  String yearOdStudy;
+  String registeredSemester;
 
   MyUser({
     this.profilePicture = 'N/A',
+    required this.uuid,
     required this.userId,
     required this.username,
     required this.password,
@@ -71,15 +78,21 @@ class MyUser {
     this.nokName = 'N/A',
     this.relationshipWithNok = 'N/A',
     this.nokContactNumber = 'N/A',
-    this.nokPhysicalAddress = 'N/A',
     this.nokAddress = 'N/A',
+    this.nokPhysicalAddress = 'N/A',
     this.nokTa = 'N/A',
     this.nokDistrict = 'N/A',
     this.nokSourceOfIncome = 'N/A',
+    this.userCampus = 'N/A',
+    this.userProgram = 'N/A',
+    this.userCohort = 'N/A',
+    this.yearOdStudy = 'N/A',
+    this.registeredSemester = 'N/A',
   });
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'uuid': uuid,
       'profilePicture': profilePicture,
       'userId': userId,
       'username': username,
@@ -115,11 +128,17 @@ class MyUser {
       'nokTa': nokTa,
       'nokDistrict': nokDistrict,
       'nokSourceOfIncome': nokSourceOfIncome,
+      'userCampus': userCampus,
+      'userProgram': userProgram,
+      'userCohort': userCohort,
+      'yearOdStudy': yearOdStudy,
+      'registeredSemester': registeredSemester,
     };
   }
 
   factory MyUser.fromMap(Map<String, dynamic> map) {
     return MyUser(
+      uuid: map['uuid'] as String,
       profilePicture: map['profilePicture'] as String,
       userId: map['userId'] as String,
       username: map['username'] as String,
@@ -155,6 +174,11 @@ class MyUser {
       nokTa: map['nokTa'] as String,
       nokDistrict: map['nokDistrict'] as String,
       nokSourceOfIncome: map['nokSourceOfIncome'] as String,
+      userCampus: map['userCampus'] as String,
+      userProgram: map['userProgram'] as String,
+      userCohort: map['userCohort'] as String,
+      yearOdStudy: map['yearOdStudy'] as String,
+      registeredSemester: map['registeredSemester'] as String,
     );
   }
 

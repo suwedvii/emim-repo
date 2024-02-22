@@ -1,4 +1,4 @@
-import 'package:emim/models/block.dart';
+import 'package:emim/models/building.dart';
 import 'package:emim/models/course.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/my_text_form_field.dart';
@@ -30,7 +30,7 @@ class _AddBuildingModalState extends State<AddBuildingModal> {
         final id = ref.push().key;
 
         final building =
-            Block(id: id!, campus: selectedCampus, name: enteredText);
+            Building(id: id!, campus: selectedCampus, name: enteredText);
         setState(() {
           isLoading = true;
         });

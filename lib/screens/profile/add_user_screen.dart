@@ -1,15 +1,17 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:emim/models/user.dart';
+import 'package:emim/models/course.dart';
+import 'package:emim/models/my_user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/my_text_form_field.dart';
+import 'package:emim/widgets/profile/my_toggle_switch.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:toggle_switch/toggle_switch.dart';
 
 final auth = FirebaseAuth.instance;
 
@@ -31,34 +33,33 @@ class AddUserScreen extends ConsumerStatefulWidget {
 }
 
 class _AddUserScreenState extends ConsumerState<AddUserScreen> {
+  final formKey = GlobalKey<FormState>();
+
   bool isLoading = true;
   List<String> programs = [];
   List<String> cohorts = [];
-  final formKey = GlobalKey<FormState>();
+
   String firstname = '';
   String surname = '';
   String email = '';
   String othernames = '';
-  String selectedCampus = campuses[0];
-  String selectedGender = genders[0];
+  String selectedCampus = '';
+  String selectedGender = '';
+  String selectModeOfEntry = '';
+  String selectModeOfStudy = '';
   String selectedProgram = '';
+  String selectedYearOfStudy = '';
   String selectedCohort = '';
   int initialSelectedUserIndex = 0;
   String? userType;
-
-  String? _validator(String? value) {
-    if (value == null ||
-        value == '' ||
-        value.trim().length < 5 ||
-        value.trim().length >= 50) {
-      return 'Please make sure to enter characters between 5 and 50';
-    }
-    return null;
-  }
+  late DatabaseReference userRef;
 
   void _addUser(BuildContext ctx, String role) async {
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
+    Map<String, dynamic>? user;
+
+    final usersRef = FirebaseDatabase.instance.ref().child('users');
+
+    final uuid = usersRef.push().key;
 
     if (formKey.currentState!.validate()) {
       setState(() {
@@ -69,33 +70,36 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = '$firstname${Random().nextInt(100).toString()}';
 
-      final user = MyUser(
-              userId: 'userId',
-              username: '${firstname[0]}.$surname',
-              emailAddress: email,
-              password: password,
-              firstName: firstname,
-              lastName: surname,
-              otherNames: othernames,
-              role: role,
-              gender: selectedGender)
-          .toJson();
-
-      print('cohort is $selectedCohort');
-
-      if (role == 'student') {
-        try {
-          final response = await http.post(url,
-              headers: {'Content-Type': 'application/json'}, body: user);
-
-          widget.loadUsers();
-
-          Navigator.of(ctx).pop();
-
-          print(response.body);
-        } on FirebaseException catch (e) {
-          print(e);
-        }
+      if (userType == 'student') {
+        user = MyUser(
+          uuid: uuid!,
+          userId: 'userId',
+          username: '${firstname[0]}.$surname',
+          emailAddress: email,
+          password: password,
+          firstName: firstname,
+          lastName: surname,
+          otherNames: othernames,
+          role: role,
+          gender: selectedGender,
+          userCohort: selectedCohort,
+          userCampus: selectedCampus,
+          userProgram: selectedProgram,
+          yearOdStudy: selectedYearOfStudy,
+        ).toMap();
+      } else {
+        user = MyUser(
+                uuid: uuid!,
+                userId: 'userId',
+                username: '${firstname[0]}.$surname',
+                emailAddress: email,
+                password: password,
+                firstName: firstname,
+                lastName: surname,
+                otherNames: othernames,
+                role: role,
+                gender: selectedGender)
+            .toMap();
       }
     }
   }
@@ -156,22 +160,6 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     }
   }
 
-  void _selectUSerType(int index) {
-    setState(() {
-      if (index == 0) {
-        userType = 'admin';
-      } else if (index == 1) {
-        userType = 'student';
-      } else if (index == 2) {
-        userType = 'instructor';
-      } else if (index == 3) {
-        userType = 'accountant';
-      }
-
-      initialSelectedUserIndex = index;
-    });
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -183,209 +171,295 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     super.initState();
     _loadCohorts();
     _loadPrograms();
+    userRef = FirebaseDatabase.instance.ref().child('users');
   }
 
   @override
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
-    return Form(
-      key: formKey,
-      child: SizedBox(
-        width: double.infinity,
-        child: Container(
-          margin: EdgeInsets.fromLTRB(12, 16, 16, keyboardSpace + 16),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text('Add User',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge!
-                        .copyWith(fontWeight: FontWeight.bold)),
-                const SizedBox(
-                  height: 10,
-                ),
-                MyTextFormFiled(
-                    onValidate: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Enter a valid name';
-                      }
-                      return null;
-                    },
-                    onValueSaved: (value) {
-                      firstname = value!;
-                    },
-                    label: 'First Name'),
-                const SizedBox(
-                  height: 8,
-                ),
-                MyTextFormFiled(
-                    onValidate: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Enter a valid name';
-                      }
-                      return null;
-                    },
-                    onValueSaved: (value) {
-                      surname = value!;
-                    },
-                    label: 'Surname'),
-                const SizedBox(
-                  height: 8,
-                ),
-                MyTextFormFiled(
-                    onValidate: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Enter a valid name';
-                      }
-                      return null;
-                    },
-                    onValueSaved: (value) {
-                      othernames = value!;
-                    },
-                    label: 'Other Names'),
-                const SizedBox(
-                  height: 8,
-                ),
-                MyTextFormFiled(
-                    onValidate: (value) {
-                      if (value == null ||
-                          value.trim().isEmpty ||
-                          !value.trim().contains('@')) {
-                        return 'Enter a valid email address';
-                      }
-                      return null;
-                    },
-                    onValueSaved: (value) {
-                      email = value!;
-                    },
-                    label: 'Email'),
-                const SizedBox(
-                  height: 12,
-                ),
-                ToggleSwitch(
-                  cornerRadius: 8,
-                  radiusStyle: true,
-                  borderColor: [Theme.of(context).colorScheme.primary],
-                  borderWidth: 1,
-                  minWidth: 93.0,
-                  minHeight: 60.0,
-                  fontSize: 16.0,
-                  initialLabelIndex: initialSelectedUserIndex,
-                  activeBgColor: [Theme.of(context).colorScheme.primary],
-                  activeFgColor: Colors.white,
-                  inactiveBgColor: Colors.white,
-                  inactiveFgColor: Colors.grey[900],
-                  totalSwitches: 4,
-                  labels: const [
-                    'Admin',
-                    'Student',
-                    'Instructor',
-                    'Accountant',
-                  ],
-                  onToggle: (index) {
-                    _selectUSerType(index!);
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                if (userType == 'student')
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomDropdown(
-                                items: programs,
-                                value: programs.isEmpty
-                                    ? 'No Programs'
-                                    : programs[0],
-                                onChanged: (String? value) {
-                                  if (value == null) return;
-                                  setState(() {
-                                    selectedProgram = value;
-                                  });
-                                },
-                                label: 'Program'),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: CustomDropdown(
-                                items: campuses,
-                                value: selectedCampus,
-                                onChanged: (String? value) {
-                                  if (value == null) return;
-                                  setState(() {
-                                    selectedCampus = value;
-                                  });
-                                },
-                                label: 'Campus'),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(
-                        height: 12,
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CustomDropdown(
-                                items: cohorts,
-                                value:
-                                    cohorts.isEmpty ? 'No cohorts' : cohorts[0],
-                                onChanged: (String? vaule) {
-                                  setState(() {
-                                    selectedCohort = vaule!;
-                                  });
-                                },
-                                label: 'Cohort'),
-                          ),
-                          const SizedBox(
-                            width: 8,
-                          ),
-                          Expanded(
-                            child: CustomDropdown(
-                                items: genders,
-                                value: selectedGender,
-                                onChanged: (String? value) {
-                                  if (value == null) return;
-                                  setState(() {
-                                    selectedGender = value;
-                                  });
-                                },
-                                label: 'Gender'),
-                          ),
-                        ],
-                      ),
-                    ],
+    return SingleChildScrollView(
+      child: Form(
+        key: formKey,
+        child: SizedBox(
+          width: double.infinity,
+          child: Container(
+            margin: EdgeInsets.fromLTRB(12, 16, 16, keyboardSpace + 16),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Add User',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge!
+                          .copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(
+                    height: 10,
                   ),
-                ElevatedButton(
-                  onPressed: () {
-                    !isLoading
-                        ? _addUser(
-                            context,
-                            widget.userType.toLowerCase(),
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter a valid name';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        firstname = value!;
+                      },
+                      label: 'First Name'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter a valid name';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        surname = value!;
+                      },
+                      label: 'Surname'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter a valid name';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        othernames = value!;
+                      },
+                      label: 'Other Names'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyTextFormFiled(
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            !value.trim().contains('@')) {
+                          return 'Enter a valid email address';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        email = value!;
+                      },
+                      label: 'Email'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyToggleSwitch(
+                      title: 'Gender',
+                      labels: const [
+                        'Male',
+                        'Female',
+                        'Other',
+                      ],
+                      totalSwitches: 3,
+                      onToggled: (index) {
+                        _selectGender(index);
+                        print(selectedGender);
+                      }),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyToggleSwitch(
+                      title: 'Role',
+                      labels: const [
+                        'Admin',
+                        'Student',
+                        'Instructor',
+                        'Accountant'
+                      ],
+                      totalSwitches: 4,
+                      onToggled: (index) {
+                        _selectUSerType(index);
+                      }),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  if (userType == 'student')
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MyToggleSwitch(
+                          title: 'Campus',
+                          labels: const [
+                            'Blantyre',
+                            'Lilongwe',
+                          ],
+                          totalSwitches: 2,
+                          onToggled: _selectCampus,
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Row(
+                          children: [
+                            MyToggleSwitch(
+                              title: 'Mode of Entry',
+                              minWidth: 86,
+                              labels: const [
+                                'Generic',
+                                'Mature',
+                              ],
+                              totalSwitches: 2,
+                              onToggled: _selectModeOfEntry,
+                            ),
+                            const SizedBox(
+                              width: 12,
+                            ),
+                            MyToggleSwitch(
+                              title: 'Mode of Study',
+                              minWidth: 86,
+                              labels: const [
+                                'Weekdays',
+                                'Weekends',
+                              ],
+                              totalSwitches: 2,
+                              onToggled: _selectModeOfStudy,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        CustomDropdown(
+                            items: programs,
+                            value:
+                                programs.isEmpty ? 'No Programs' : programs[0],
+                            onChanged: (String? value) {
+                              if (value == null) return;
+                              setState(() {
+                                selectedProgram = value;
+                              });
+                            },
+                            label: 'Program'),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomDropdown(
+                                  items: years,
+                                  value: years[0],
+                                  onChanged: (String? value) {
+                                    if (value == null) return;
+                                    setState(() {
+                                      selectedYearOfStudy = value;
+                                    });
+                                  },
+                                  label: 'Year of Study'),
+                            ),
+                            const SizedBox(
+                              width: 6,
+                            ),
+                            Expanded(
+                              child: CustomDropdown(
+                                  items: cohorts,
+                                  value: cohorts.isEmpty
+                                      ? 'No cohorts'
+                                      : cohorts[0],
+                                  onChanged: (String? vaule) {
+                                    setState(() {
+                                      selectedCohort = vaule!;
+                                    });
+                                  },
+                                  label: 'Cohort'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 12,
+                        ),
+                      ],
+                    ),
+                  ElevatedButton(
+                    onPressed: () {
+                      !isLoading
+                          ? _addUser(
+                              context,
+                              widget.userType.toLowerCase(),
+                            )
+                          : null;
+                    },
+                    child: isLoading
+                        ? const SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(),
                           )
-                        : null;
-                  },
-                  child: isLoading
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(),
-                        )
-                      : const Text('Add User'),
-                ),
-              ],
+                        : const Text('Add User'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  void _selectUSerType(int index) {
+    setState(() {
+      if (index == 0) {
+        userType = 'admin';
+      } else if (index == 1) {
+        userType = 'student';
+      } else if (index == 2) {
+        userType = 'instructor';
+      } else if (index == 3) {
+        userType = 'accountant';
+      }
+    });
+  }
+
+  void _selectGender(int index) {
+    setState(() {
+      if (index == 0) {
+        selectedGender = 'male';
+      } else if (index == 1) {
+        selectedGender = 'female';
+      } else if (index == 2) {
+        selectedGender = 'other';
+      }
+    });
+  }
+
+  void _selectCampus(int index) {
+    setState(() {
+      if (index == 0) {
+        selectedCampus = 'blantyre';
+      } else if (index == 1) {
+        selectedCampus = 'lilongwe';
+      }
+    });
+  }
+
+  void _selectModeOfEntry(int index) {
+    setState(() {
+      if (index == 0) {
+        selectModeOfEntry = 'generic';
+      } else if (index == 1) {
+        selectModeOfEntry = 'mature';
+      }
+    });
+  }
+
+  void _selectModeOfStudy(int index) {
+    setState(() {
+      if (index == 0) {
+        selectModeOfStudy = 'week days';
+      } else if (index == 1) {
+        selectModeOfStudy = 'weekends';
+      }
+    });
   }
 }

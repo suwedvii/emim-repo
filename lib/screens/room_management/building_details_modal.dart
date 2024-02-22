@@ -1,4 +1,4 @@
-import 'package:emim/models/block.dart';
+import 'package:emim/models/building.dart';
 import 'package:emim/models/room.dart';
 import 'package:emim/screens/room_management/room_schedules_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 class BlockDetailsModal extends StatefulWidget {
   const BlockDetailsModal({super.key, required this.building});
 
-  final Block building;
+  final Building building;
 
   @override
   State<BlockDetailsModal> createState() => _BlockDetailsModalState();
