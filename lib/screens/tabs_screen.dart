@@ -5,7 +5,7 @@ import 'package:emim/screens/course_management/course_management_screen.dart';
 import 'package:emim/screens/payments/payments.dart';
 import 'package:emim/screens/profile/profile_screen.dart';
 import 'package:emim/screens/reports/reports.dart';
-import 'package:emim/screens/schedule/room_management_screen.dart';
+import 'package:emim/screens/room_management/room_management_screen.dart';
 import 'package:emim/screens/schedule/schedule_screen.dart';
 import 'package:emim/screens/settings/settings.dart';
 import 'package:emim/widgets/image_slider.dart';

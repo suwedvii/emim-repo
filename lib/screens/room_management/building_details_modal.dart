@@ -1,6 +1,6 @@
 import 'package:emim/models/block.dart';
 import 'package:emim/models/room.dart';
-import 'package:emim/screens/schedule/room_schedules_screen.dart';
+import 'package:emim/screens/room_management/room_schedules_screen.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 

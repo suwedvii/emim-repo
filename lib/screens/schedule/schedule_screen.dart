@@ -1,6 +1,5 @@
+import 'package:emim/screens/room_management/room_management_screen.dart';
 import 'package:emim/screens/schedule/add_schedule_bottom_modal.dart';
-// import 'package:emim/screens/schedule/manage_rooms_screen.dart';
-import 'package:emim/screens/schedule/room_management_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -19,10 +18,7 @@ class ScheduleScreen extends ConsumerStatefulWidget {
 class _ScheduleScreenState extends ConsumerState<ScheduleScreen> {
   void _goToManageRoomsScreem() {
     Navigator.of(context).push(
-      MaterialPageRoute(
-          builder: (ctx) =>
-              // const ManageRoomsScreen(),
-              const RoomManagementScreen()),
+      MaterialPageRoute(builder: (ctx) => const RoomManagementScreen()),
     );
   }
 
