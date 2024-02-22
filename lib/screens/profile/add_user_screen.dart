@@ -43,7 +43,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String selectedGender = genders[0];
   String selectedProgram = '';
   String selectedCohort = '';
-  int selectedUserTypeIndex = 0;
+  int initialSelectedUserIndex = 0;
   String? userType;
 
   String? _validator(String? value) {
@@ -156,6 +156,22 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     }
   }
 
+  void _selectUSerType(int index) {
+    setState(() {
+      if (index == 0) {
+        userType = 'admin';
+      } else if (index == 1) {
+        userType = 'student';
+      } else if (index == 2) {
+        userType = 'instructor';
+      } else if (index == 3) {
+        userType = 'accountant';
+      }
+
+      initialSelectedUserIndex = index;
+    });
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -249,102 +265,105 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   height: 12,
                 ),
                 ToggleSwitch(
-                  cornerRadius: 20,
+                  cornerRadius: 8,
                   radiusStyle: true,
-                  borderColor: const [Colors.black],
+                  borderColor: [Theme.of(context).colorScheme.primary],
                   borderWidth: 1,
                   minWidth: 93.0,
                   minHeight: 60.0,
                   fontSize: 16.0,
-                  initialLabelIndex: 1,
-                  activeBgColor: const [Colors.green],
+                  initialLabelIndex: initialSelectedUserIndex,
+                  activeBgColor: [Theme.of(context).colorScheme.primary],
                   activeFgColor: Colors.white,
                   inactiveBgColor: Colors.white,
                   inactiveFgColor: Colors.grey[900],
                   totalSwitches: 4,
                   labels: const [
+                    'Admin',
                     'Student',
                     'Instructor',
                     'Accountant',
-                    'Admin'
                   ],
                   onToggle: (index) {
-                    selectedUserTypeIndex = index!;
+                    _selectUSerType(index!);
                   },
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                if (widget.userType == 'student')
-                  Row(
+                if (userType == 'student')
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: CustomDropdown(
-                            items: programs,
-                            value:
-                                programs.isEmpty ? 'No Programs' : programs[0],
-                            onChanged: (String? value) {
-                              if (value == null) return;
-                              setState(() {
-                                selectedProgram = value;
-                              });
-                            },
-                            label: 'Program'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomDropdown(
+                                items: programs,
+                                value: programs.isEmpty
+                                    ? 'No Programs'
+                                    : programs[0],
+                                onChanged: (String? value) {
+                                  if (value == null) return;
+                                  setState(() {
+                                    selectedProgram = value;
+                                  });
+                                },
+                                label: 'Program'),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: CustomDropdown(
+                                items: campuses,
+                                value: selectedCampus,
+                                onChanged: (String? value) {
+                                  if (value == null) return;
+                                  setState(() {
+                                    selectedCampus = value;
+                                  });
+                                },
+                                label: 'Campus'),
+                          ),
+                        ],
                       ),
                       const SizedBox(
-                        width: 8,
+                        height: 12,
                       ),
-                      Expanded(
-                        child: CustomDropdown(
-                            items: campuses,
-                            value: selectedCampus,
-                            onChanged: (String? value) {
-                              if (value == null) return;
-                              setState(() {
-                                selectedCampus = value;
-                              });
-                            },
-                            label: 'Campus'),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CustomDropdown(
+                                items: cohorts,
+                                value:
+                                    cohorts.isEmpty ? 'No cohorts' : cohorts[0],
+                                onChanged: (String? vaule) {
+                                  setState(() {
+                                    selectedCohort = vaule!;
+                                  });
+                                },
+                                label: 'Cohort'),
+                          ),
+                          const SizedBox(
+                            width: 8,
+                          ),
+                          Expanded(
+                            child: CustomDropdown(
+                                items: genders,
+                                value: selectedGender,
+                                onChanged: (String? value) {
+                                  if (value == null) return;
+                                  setState(() {
+                                    selectedGender = value;
+                                  });
+                                },
+                                label: 'Gender'),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                const SizedBox(
-                  height: 12,
-                ),
-                if (widget.userType == 'student')
-                  Row(
-                    children: [
-                      Expanded(
-                        child: CustomDropdown(
-                            items: cohorts,
-                            value: cohorts.isEmpty ? 'No cohorts' : cohorts[0],
-                            onChanged: (String? vaule) {
-                              setState(() {
-                                selectedCohort = vaule!;
-                              });
-                            },
-                            label: 'Cohort'),
-                      ),
-                      const SizedBox(
-                        width: 8,
-                      ),
-                      Expanded(
-                        child: CustomDropdown(
-                            items: genders,
-                            value: selectedGender,
-                            onChanged: (String? value) {
-                              if (value == null) return;
-                              setState(() {
-                                selectedGender = value;
-                              });
-                            },
-                            label: 'Gender'),
-                      ),
-                    ],
-                  ),
-                const SizedBox(
-                  height: 8,
-                ),
                 ElevatedButton(
                   onPressed: () {
                     !isLoading

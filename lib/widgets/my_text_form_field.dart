@@ -37,8 +37,10 @@ class _MyTextFormFiledState extends State<MyTextFormFiled> {
           label: Text(widget.label),
           fillColor: Theme.of(context).colorScheme.onPrimary,
           filled: true,
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(
+          border: OutlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).colorScheme.primary),
+            borderRadius: const BorderRadius.all(
               Radius.circular(8),
             ),
           )),
