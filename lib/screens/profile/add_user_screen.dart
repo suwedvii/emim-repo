@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:toggle_switch/toggle_switch.dart';
 
 final auth = FirebaseAuth.instance;
 
@@ -42,6 +43,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String selectedGender = genders[0];
   String selectedProgram = '';
   String selectedCohort = '';
+  int selectedUserTypeIndex = 0;
+  String? userType;
 
   String? _validator(String? value) {
     if (value == null ||
@@ -83,21 +86,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       if (role == 'student') {
         try {
           final response = await http.post(url,
-              headers: {'Content-Type': 'application/json'}, body: user
-              // json.encode(user
-              //     // {
-              //     //   'password': password,
-              //     //   'studentId': '',
-              //     //   'userCampus': selectedCampus,
-              //     //   'userProgram': selectedProgram,
-              //     //   'userCohort': selectedCohort,
-              //     //   'gender': selectedGender,
-              //     //   'username': '$firstname.$surname',
-              //     //   'emailAddress': email,
-              //     //   'role': widget.userType,
-              //     // },
-              //     ),
-              );
+              headers: {'Content-Type': 'application/json'}, body: user);
 
           widget.loadUsers();
 
@@ -188,12 +177,12 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
       child: SizedBox(
         width: double.infinity,
         child: Container(
-          margin: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 16),
+          margin: EdgeInsets.fromLTRB(12, 16, 16, keyboardSpace + 16),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('Add ${widget.userType}',
+                Text('Add User',
                     style: Theme.of(context)
                         .textTheme
                         .titleLarge!
@@ -258,6 +247,33 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                     label: 'Email'),
                 const SizedBox(
                   height: 12,
+                ),
+                ToggleSwitch(
+                  cornerRadius: 20,
+                  radiusStyle: true,
+                  borderColor: const [Colors.black],
+                  borderWidth: 1,
+                  minWidth: 93.0,
+                  minHeight: 60.0,
+                  fontSize: 16.0,
+                  initialLabelIndex: 1,
+                  activeBgColor: const [Colors.green],
+                  activeFgColor: Colors.white,
+                  inactiveBgColor: Colors.white,
+                  inactiveFgColor: Colors.grey[900],
+                  totalSwitches: 4,
+                  labels: const [
+                    'Student',
+                    'Instructor',
+                    'Accountant',
+                    'Admin'
+                  ],
+                  onToggle: (index) {
+                    selectedUserTypeIndex = index!;
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
                 ),
                 if (widget.userType == 'student')
                   Row(
