@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
+
 enum Gender { male, female, other }
 
 class MyUser {
@@ -45,50 +47,53 @@ class MyUser {
   String userCohort;
   String yearOdStudy;
   String registeredSemester;
+  String modeOfEntry;
+  String modeOfStudy;
 
-  MyUser({
-    this.profilePicture = 'N/A',
-    required this.uuid,
-    required this.userId,
-    required this.username,
-    required this.password,
-    required this.firstName,
-    required this.lastName,
-    required this.otherNames,
-    required this.role,
-    this.dateOfBirth = 'N/A',
-    this.idNumber = 'N/A',
-    this.gender = 'N/A',
-    this.title = 'N/A',
-    this.contactNumber = 'N/A',
-    this.emailAddress = 'N/A',
-    this.creationDate = 'N/A',
-    this.accountStatus = 'N/A',
-    this.homeDistrict = 'N/A',
-    this.homeTA = 'N/A',
-    this.homeVillage = 'N/A',
-    this.homeAddress = 'N/A',
-    this.district = 'N/A',
-    this.contactVillage = 'N/A',
-    this.contactTA = 'N/A',
-    this.contactDistrict = 'N/A',
-    this.contactPhysicalAddress = 'N/A',
-    this.contactPostalAddress = 'N/A',
-    this.nationality = 'N/A',
-    this.nokName = 'N/A',
-    this.relationshipWithNok = 'N/A',
-    this.nokContactNumber = 'N/A',
-    this.nokAddress = 'N/A',
-    this.nokPhysicalAddress = 'N/A',
-    this.nokTa = 'N/A',
-    this.nokDistrict = 'N/A',
-    this.nokSourceOfIncome = 'N/A',
-    this.userCampus = 'N/A',
-    this.userProgram = 'N/A',
-    this.userCohort = 'N/A',
-    this.yearOdStudy = 'N/A',
-    this.registeredSemester = 'N/A',
-  });
+  MyUser(
+      {this.profilePicture = 'N/A',
+      this.uuid = 'N/A',
+      this.userId = 'N/A',
+      this.username = 'N/A',
+      this.password = 'N/A',
+      this.firstName = 'N/A',
+      this.lastName = 'N/A',
+      this.otherNames = 'N/A',
+      this.role = 'N/A',
+      this.dateOfBirth = 'N/A',
+      this.idNumber = 'N/A',
+      this.gender = 'N/A',
+      this.title = 'N/A',
+      this.contactNumber = 'N/A',
+      this.emailAddress = 'N/A',
+      this.creationDate = 'N/A',
+      this.accountStatus = 'N/A',
+      this.homeDistrict = 'N/A',
+      this.homeTA = 'N/A',
+      this.homeVillage = 'N/A',
+      this.homeAddress = 'N/A',
+      this.district = 'N/A',
+      this.contactVillage = 'N/A',
+      this.contactTA = 'N/A',
+      this.contactDistrict = 'N/A',
+      this.contactPhysicalAddress = 'N/A',
+      this.contactPostalAddress = 'N/A',
+      this.nationality = 'N/A',
+      this.nokName = 'N/A',
+      this.relationshipWithNok = 'N/A',
+      this.nokContactNumber = 'N/A',
+      this.nokAddress = 'N/A',
+      this.nokPhysicalAddress = 'N/A',
+      this.nokTa = 'N/A',
+      this.nokDistrict = 'N/A',
+      this.nokSourceOfIncome = 'N/A',
+      this.userCampus = 'N/A',
+      this.userProgram = 'N/A',
+      this.userCohort = 'N/A',
+      this.yearOdStudy = 'N/A',
+      this.registeredSemester = 'N/A',
+      this.modeOfEntry = 'N/A',
+      this.modeOfStudy = 'N/A'});
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
@@ -133,6 +138,8 @@ class MyUser {
       'userCohort': userCohort,
       'yearOdStudy': yearOdStudy,
       'registeredSemester': registeredSemester,
+      'modeOfEntry': modeOfEntry,
+      'modeOfStudy': modeOfStudy
     };
   }
 
@@ -179,6 +186,8 @@ class MyUser {
       userCohort: map['userCohort'] as String,
       yearOdStudy: map['yearOdStudy'] as String,
       registeredSemester: map['registeredSemester'] as String,
+      modeOfEntry: map['modeOfEntry'] as String,
+      modeOfStudy: map['modeOfStudy'] as String,
     );
   }
 
@@ -186,4 +195,68 @@ class MyUser {
 
   factory MyUser.fromJson(String source) =>
       MyUser.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  MyUser fromSnapshot(DataSnapshot snapshot) => MyUser(
+        uuid: snapshot.child('id').value.toString(),
+        profilePicture: snapshot.child('profilePicture').value.toString(),
+        userId: snapshot.child('userId').value.toString(),
+        username: snapshot.child('username').value.toString(),
+        password: snapshot.child('password').value.toString(),
+        firstName: snapshot.child('firstName').value.toString(),
+        lastName: snapshot.child('lastName').value.toString(),
+        otherNames: snapshot.child('otherNames').value.toString(),
+        role: snapshot.child('role').value.toString(),
+        dateOfBirth: snapshot.child('dateOfBirth').value.toString(),
+        idNumber: snapshot.child('idNumber').value.toString(),
+        gender: snapshot.child('gender').value.toString(),
+        title: snapshot.child('title').value.toString(),
+        contactNumber: snapshot.child('contactNumber').value.toString(),
+        emailAddress: snapshot.child('emailAddress').value.toString(),
+        creationDate: snapshot.child('creationDate').value.toString(),
+        accountStatus: snapshot.child('accountStatus').value.toString(),
+        homeDistrict: snapshot.child('homeDistrict').value.toString(),
+        homeTA: snapshot.child('homeTA').value.toString(),
+        homeVillage: snapshot.child('homeVillage').value.toString(),
+        homeAddress: snapshot.child('homeAddress').value.toString(),
+        district: snapshot.child('district').value.toString(),
+        contactVillage: snapshot.child('contactVillage').value.toString(),
+        contactTA: snapshot.child('contactTA').value.toString(),
+        contactDistrict: snapshot.child('contactDistrict').value.toString(),
+        contactPhysicalAddress:
+            snapshot.child('contactPhysicalAddress').value.toString(),
+        contactPostalAddress:
+            snapshot.child('contactPostalAddress').value.toString(),
+        nationality: snapshot.child('nationality').value.toString(),
+        nokName: snapshot.child('nokName').value.toString(),
+        relationshipWithNok:
+            snapshot.child('relationshipWithNok').value.toString(),
+        nokContactNumber: snapshot.child('nokContactNumber').value.toString(),
+        nokAddress: snapshot.child('nokAddress').value.toString(),
+        nokPhysicalAddress:
+            snapshot.child('nokPhysicalAddress').value.toString(),
+        nokTa: snapshot.child('nokTa').value.toString(),
+        nokDistrict: snapshot.child('nokDistrict').value.toString(),
+        nokSourceOfIncome: snapshot.child('nokSourceOfIncome').value.toString(),
+        userCampus: snapshot.child('userCampus').value.toString(),
+        userProgram: snapshot.child('userProgram').value.toString(),
+        userCohort: snapshot.child('userCohort').value.toString(),
+        yearOdStudy: snapshot.child('yearOdStudy').value.toString(),
+        registeredSemester:
+            snapshot.child('registeredSemester').value.toString(),
+        modeOfEntry: snapshot.child('modeOfEntry').value.toString(),
+        modeOfStudy: snapshot.child('modeOfStudy').value.toString(),
+      );
+
+  List<MyUser> getUsers(DatabaseReference userRef) {
+    List<MyUser> users = [];
+
+    userRef.onValue.listen((event) {
+      for (final user in event.snapshot.children) {
+        final retrievedUser = MyUser().fromSnapshot(user);
+        users.add(retrievedUser);
+      }
+    });
+
+    return users;
+  }
 }

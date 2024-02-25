@@ -38,8 +38,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   bool isLoading = true;
   List<String> programs = [];
   List<String> cohorts = [];
+  List<MyUser>? users;
 
   String firstname = '';
+  String userId = '';
   String surname = '';
   String email = '';
   String othernames = '';
@@ -51,10 +53,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String selectedYearOfStudy = '';
   String selectedCohort = '';
   int initialSelectedUserIndex = 0;
-  String? userType;
+  String role = '';
   late DatabaseReference userRef;
 
-  void _addUser(BuildContext ctx, String role) async {
+  void _addUser() {
     Map<String, dynamic>? user;
 
     final usersRef = FirebaseDatabase.instance.ref().child('users');
@@ -70,27 +72,10 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = '$firstname${Random().nextInt(100).toString()}';
 
-      if (userType == 'student') {
-        user = MyUser(
-          uuid: uuid!,
-          userId: 'userId',
-          username: '${firstname[0]}.$surname',
-          emailAddress: email,
-          password: password,
-          firstName: firstname,
-          lastName: surname,
-          otherNames: othernames,
-          role: role,
-          gender: selectedGender,
-          userCohort: selectedCohort,
-          userCampus: selectedCampus,
-          userProgram: selectedProgram,
-          yearOdStudy: selectedYearOfStudy,
-        ).toMap();
-      } else {
+      if (role == 'student') {
         user = MyUser(
                 uuid: uuid!,
-                userId: 'userId',
+                userId: _getUserId(),
                 username: '${firstname[0]}.$surname',
                 emailAddress: email,
                 password: password,
@@ -98,9 +83,37 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                 lastName: surname,
                 otherNames: othernames,
                 role: role,
-                gender: selectedGender)
+                gender: selectedGender,
+                userCohort: selectedCohort,
+                userCampus: selectedCampus,
+                userProgram: selectedProgram,
+                yearOdStudy: selectedYearOfStudy,
+                creationDate: DateTime.now().toString(),
+                accountStatus: 'created',
+                modeOfEntry: selectModeOfEntry,
+                modeOfStudy: selectModeOfStudy)
+            .toMap();
+      } else {
+        user = MyUser(
+                uuid: uuid!,
+                userId: _getUserId(),
+                username: '${firstname[0]}.$surname',
+                emailAddress: email,
+                password: password,
+                firstName: firstname,
+                lastName: surname,
+                otherNames: othernames,
+                role: role,
+                gender: selectedGender,
+                creationDate: DateTime.now().toString(),
+                accountStatus: 'created')
             .toMap();
       }
+
+      userRef.child(uuid).set(user).whenComplete(() {
+        isLoading = false;
+        Navigator.of(context).pop();
+      });
     }
   }
 
@@ -171,7 +184,13 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
     super.initState();
     _loadCohorts();
     _loadPrograms();
+    _selectGender(0);
+    _selectCampus(0);
+    _selectModeOfEntry(0);
+    _selectModeOfStudy(0);
+    _selectUSerType(0);
     userRef = FirebaseDatabase.instance.ref().child('users');
+    users = MyUser().getUsers(userRef);
   }
 
   @override
@@ -284,7 +303,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                   const SizedBox(
                     height: 8,
                   ),
-                  if (userType == 'student')
+                  if (role == 'student')
                     Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -382,14 +401,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
                       ],
                     ),
                   ElevatedButton(
-                    onPressed: () {
-                      !isLoading
-                          ? _addUser(
-                              context,
-                              widget.userType.toLowerCase(),
-                            )
-                          : null;
-                    },
+                    onPressed: !isLoading ? _addUser : null,
                     child: isLoading
                         ? const SizedBox(
                             height: 16,
@@ -408,58 +420,112 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   }
 
   void _selectUSerType(int index) {
+    String userRole = '';
+    if (index == 0) {
+      userRole = 'admin';
+    } else if (index == 1) {
+      userRole = 'student';
+    } else if (index == 2) {
+      userRole = 'instructor';
+    } else if (index == 3) {
+      userRole = 'accountant';
+    }
     setState(() {
-      if (index == 0) {
-        userType = 'admin';
-      } else if (index == 1) {
-        userType = 'student';
-      } else if (index == 2) {
-        userType = 'instructor';
-      } else if (index == 3) {
-        userType = 'accountant';
-      }
+      role = userRole;
     });
   }
 
   void _selectGender(int index) {
+    String gender = '';
+    if (index == 0) {
+      gender = 'male';
+    } else if (index == 1) {
+      gender = 'female';
+    } else if (index == 2) {
+      gender = 'other';
+    }
     setState(() {
-      if (index == 0) {
-        selectedGender = 'male';
-      } else if (index == 1) {
-        selectedGender = 'female';
-      } else if (index == 2) {
-        selectedGender = 'other';
-      }
+      selectedGender = gender;
     });
   }
 
   void _selectCampus(int index) {
+    String campus = '';
+    if (index == 0) {
+      campus = 'blantyre';
+    } else if (index == 1) {
+      campus = 'lilongwe';
+    }
     setState(() {
-      if (index == 0) {
-        selectedCampus = 'blantyre';
-      } else if (index == 1) {
-        selectedCampus = 'lilongwe';
-      }
+      selectedCampus = campus;
     });
   }
 
   void _selectModeOfEntry(int index) {
+    String modeOfEntry = '';
+    if (index == 0) {
+      modeOfEntry = 'generic';
+    } else if (index == 1) {
+      modeOfEntry = 'mature';
+    }
     setState(() {
-      if (index == 0) {
-        selectModeOfEntry = 'generic';
-      } else if (index == 1) {
-        selectModeOfEntry = 'mature';
-      }
+      selectModeOfEntry = modeOfEntry;
     });
   }
 
   void _selectModeOfStudy(int index) {
+    String modeOfStudy = '';
+    if (index == 0) {
+      modeOfStudy = 'week days';
+    } else if (index == 1) {
+      modeOfStudy = 'weekends';
+    }
     setState(() {
-      if (index == 0) {
-        selectModeOfStudy = 'week days';
-      } else if (index == 1) {
-        selectModeOfStudy = 'weekends';
-      }
+      selectModeOfStudy = modeOfStudy;
     });
+  }
+
+  String _getUserNumber() {
+    int numberOfStudents = 0;
+    int numberOfStaffs = 0;
+
+    for (final user in users!) {
+      if (user.role == 'student') {
+        if (user.userProgram == selectedProgram &&
+            user.userCampus == selectedCampus &&
+            user.modeOfEntry == selectModeOfEntry &&
+            user.userCohort == selectedCohort) {
+          numberOfStudents += 1;
+        }
+      } else {
+        numberOfStaffs += 1;
+      }
+    }
+
+    numberOfStaffs += 1;
+    numberOfStudents += 1;
+    return role == 'student'
+        ? '${numberOfStudents < 10 ? '0$numberOfStudents' : numberOfStudents}'
+        : numberOfStaffs.toString();
+  }
+
+  String _getUserId() {
+    final campus = selectedCampus.toLowerCase() == 'blantyre' ? 'BT' : 'LL';
+    final modeOfEntry =
+        selectModeOfEntry.toLowerCase() == 'generic' ? 'G' : 'M';
+    final cohort = selectedCohort == ''
+        ? 'C1'
+        : '${selectedCohort[0]}${selectedCohort.substring(7)}';
+    final userNumber = _getUserNumber();
+    final year = DateTime.now().year.toString().substring(2);
+
+    if (role == 'student') {
+      userId =
+          '$selectedProgram/$campus/$modeOfEntry/$cohort/$userNumber/$year';
+    } else {
+      userId = 'MSG${userNumber.padLeft(6, '0')}';
+    }
+
+    return userId;
   }
 }
