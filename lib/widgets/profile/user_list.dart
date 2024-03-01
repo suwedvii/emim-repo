@@ -23,7 +23,7 @@ class UserList extends StatelessWidget {
     print(users);
     print(userMap);
 
-    return ListView.builder(
+    Widget content = ListView.builder(
         itemCount: users.length,
         itemBuilder: (ctx, index) => GestureDetector(
               onTap: () {
@@ -68,5 +68,16 @@ class UserList extends StatelessWidget {
                 ),
               ),
             ));
+
+    if (users.isEmpty) {
+      content = Center(
+        child: Text(
+          'No users found',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
+      );
+    }
+
+    return content;
   }
 }

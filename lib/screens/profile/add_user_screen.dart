@@ -56,12 +56,8 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String role = '';
   late DatabaseReference userRef;
 
-  void _addUser() {
+  void _addUser() async {
     Map<String, dynamic>? user;
-
-    final usersRef = FirebaseDatabase.instance.ref().child('users');
-
-    final uuid = usersRef.push().key;
 
     if (formKey.currentState!.validate()) {
       setState(() {
@@ -72,9 +68,15 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
 
       final password = '$firstname${Random().nextInt(100).toString()}';
 
+      final signUpUserTask = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: password);
+
+      if (signUpUserTask.additionalUserInfo == null) return;
+      final uid = signUpUserTask.user!.uid;
+
       if (role == 'student') {
         user = MyUser(
-                uuid: uuid!,
+                uid: uid,
                 userId: _getUserId(),
                 username: '${firstname[0]}.$surname',
                 emailAddress: email,
@@ -95,7 +97,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
             .toMap();
       } else {
         user = MyUser(
-                uuid: uuid!,
+                uid: uid,
                 userId: _getUserId(),
                 username: '${firstname[0]}.$surname',
                 emailAddress: email,
@@ -110,7 +112,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
             .toMap();
       }
 
-      userRef.child(uuid).set(user).whenComplete(() {
+      userRef.child(uid).set(user).whenComplete(() {
         isLoading = false;
         Navigator.of(context).pop();
       });

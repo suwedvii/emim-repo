@@ -1,13 +1,12 @@
-import 'dart:convert';
-
+import 'package:emim/constants.dart';
 import 'package:emim/models/my_user.dart';
 import 'package:emim/screens/profile/add_user_screen.dart';
 import 'package:emim/widgets/profile/user_list.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:http/http.dart' as http;
 
 class UserManagementScreen extends ConsumerStatefulWidget {
   const UserManagementScreen({super.key});
@@ -30,54 +29,26 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
   }
 
   void loadUsers() async {
-    print('LoadUsers was called');
+    final List<MyUser> userList = [];
+
+    DatabaseReference usersRef = FirebaseDatabase.instance.ref().child('users');
 
     try {
-      final url =
-          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'users.json');
-
-      final List<MyUser> userList = [];
-      List<Map<String, dynamic>>? retrievedUsersMap = [];
-
-      final response = await http.get(url);
-
-      print(response.body);
-
-      if (response.statusCode >= 400) {
-        print('Failed to fetch information from the database');
-      }
-
-      final Map<String, dynamic>? listData = json.decode(response.body);
-
-      print('Status code: ${response.statusCode}');
-
-      if (listData == null) return;
-
-      for (final user in listData.entries) {
-        // final id = user.key.toString();
-        // final username = user.value['username'];
-        // final email = user.value['emailAddress'];
-        // final password = user.value['password'];
-        // final role = user.value['role'];
-
-        userList.add(MyUser.fromMap(user.value));
-        retrievedUsersMap.add(user.value);
-        print(MyUser.fromMap(user.value));
-      }
-
-      setState(() {
-        users = userList;
-        usersMapList = retrievedUsersMap;
-        isLoading = false;
-        print(users.length);
+      usersRef.onValue.listen((event) {
+        userList.clear();
+        for (final user in event.snapshot.children) {
+          final retrievedUser = MyUser().fromSnapshot(user);
+          userList.add(retrievedUser);
+        }
+        setState(() {
+          users = userList;
+          isLoading = false;
+        });
       });
-    } on FirebaseException catch (error) {
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(error.message!),
-        ),
-      );
+    } on FirebaseException catch (e) {
+      if (mounted) {
+        Constants().showMessage(context, e);
+      }
     }
   }
 
@@ -101,7 +72,6 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(users);
     Widget content = isLoading
         ? const Center(
             child: CircularProgressIndicator(),
@@ -110,14 +80,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
             userMap: usersMapList,
             users: users,
           );
-    // if (users.isEmpty) {
-    //   content = Center(
-    //     child: Text(
-    //       'No users found',
-    //       style: Theme.of(context).textTheme.bodyLarge,
-    //     ),
-    //   );
-    // }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Manage Users'),

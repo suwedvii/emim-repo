@@ -1,5 +1,8 @@
+import 'package:emim/constants.dart';
+import 'package:emim/models/my_user.dart';
 import 'package:emim/screens/tabs_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,29 +21,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String? enteredEmail;
   String? enteredPassword;
+  MyUser? lodgedUser;
+  DatabaseReference userRef = FirebaseDatabase.instance.ref().child('users');
 
   void _login() async {
     if (form.currentState!.validate()) {
       form.currentState!.save();
-      print('$enteredEmail and $enteredPassword');
       try {
         final result = await auth.signInWithEmailAndPassword(
             email: enteredEmail!, password: enteredPassword!);
         if (result.additionalUserInfo == null) return null;
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (ctx) => TabsScreen(user: result.user),
-          ),
-        );
-      } on FirebaseException catch (error) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.message ?? 'Authentication Failed'),
-          ),
-        );
+        _goToTabsScreen(result.user!);
+      } on FirebaseException catch (e) {
+        if (mounted) {
+          Constants().showMessage(context, e);
+        }
       }
+    }
+  }
+
+  void _goToTabsScreen(User user) {
+    if (mounted) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (ctx) => TabsScreen(user: user),
+        ),
+      );
     }
   }
 

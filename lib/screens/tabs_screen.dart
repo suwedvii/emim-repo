@@ -1,3 +1,5 @@
+import 'package:emim/constants.dart';
+import 'package:emim/models/my_user.dart';
 import 'package:emim/screens/assignments/assignments_screen.dart';
 import 'package:emim/screens/campus_map/campus_map.dart';
 import 'package:emim/screens/communication/chats_screen.dart';
@@ -11,20 +13,22 @@ import 'package:emim/screens/settings/settings.dart';
 import 'package:emim/widgets/image_slider.dart';
 import 'package:emim/widgets/main_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class TabsScreen extends StatefulWidget {
+class TabsScreen extends ConsumerStatefulWidget {
   const TabsScreen({super.key, this.user});
 
   final User? user;
 
   @override
-  State<StatefulWidget> createState() {
+  ConsumerState<ConsumerStatefulWidget> createState() {
     return _TabsScreenState();
   }
 }
 
-class _TabsScreenState extends State<TabsScreen> {
+class _TabsScreenState extends ConsumerState<TabsScreen> {
   final List<String> slideImages = [
     'assets/images/msg_slide_img_1.jpg',
     'assets/images/msg_slide_img_2.jpg',
@@ -33,11 +37,9 @@ class _TabsScreenState extends State<TabsScreen> {
     'assets/images/msg_slide_img_5.jpg',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    print(widget.user?.email);
-  }
+  bool isLoading = true;
+  MyUser? lodgedUser;
+  String? userUid;
 
   int currentScreenIndex = 0;
 
@@ -71,31 +73,87 @@ class _TabsScreenState extends State<TabsScreen> {
   void _gotToProfile() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (ctx) => const ProfileScreen(title: 'Profile'),
+        builder: (ctx) => ProfileScreen(title: 'Profile', user: lodgedUser!),
       ),
     );
   }
 
+  void _getUserById(String uid) async {
+    MyUser foundUser = MyUser();
+    print(uid);
+    print('Get user was called');
+    try {
+      final userRef = await FirebaseDatabase.instance
+          .ref()
+          .child('users')
+          .child(uid)
+          .once();
+
+      final user = MyUser().fromSnapshot(userRef.snapshot);
+
+      foundUser = user;
+
+      if (mounted) {
+        setState(() {
+          lodgedUser = foundUser;
+          isLoading = false;
+        });
+      }
+
+      // usersRef.onValue.listen((event) {
+      //   for (final user in event.snapshot.children) {
+      //     final retriedvedUser = MyUser().fromSnapshot(user);
+      //     if (retriedvedUser.uid == uid) {
+      //       foundUser = retriedvedUser;
+      //     }
+      //     setState(() {
+      //       lodgedUser = foundUser;
+      //       isLoading = false;
+      //     });
+      //   }
+      // });
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+        Constants().showMessage(context, e);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    userUid = FirebaseAuth.instance.currentUser!.uid;
+    _getUserById(userUid!);
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget content = SingleChildScrollView(
-      child: Column(
-        children: [
-          slideImages.isNotEmpty
-              ? ImageSlider(slideImages: slideImages)
-              : const Center(
-                  child: Text('Nothing here yet!'),
-                ),
-          Divider(
-            thickness: 3,
-            height: 30,
-            endIndent: 36,
-            indent: 36,
-            color: Theme.of(context).colorScheme.primary,
+    Widget content = isLoading
+        ? const Center(
+            child: CircularProgressIndicator(),
           )
-        ],
-      ),
-    );
+        : SingleChildScrollView(
+            child: Column(
+              children: [
+                slideImages.isNotEmpty
+                    ? ImageSlider(slideImages: slideImages)
+                    : const Center(
+                        child: Text('Nothing here yet!'),
+                      ),
+                Divider(
+                  thickness: 3,
+                  height: 30,
+                  endIndent: 36,
+                  indent: 36,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                Text(lodgedUser!.emailAddress),
+              ],
+            ),
+          );
 
     var appBarTitle = 'eMiM - Dashboard';
 

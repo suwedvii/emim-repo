@@ -6,7 +6,7 @@ import 'package:firebase_database/firebase_database.dart';
 enum Gender { male, female, other }
 
 class MyUser {
-  String uuid;
+  String uid;
   String profilePicture;
   String userId;
   String username;
@@ -52,7 +52,7 @@ class MyUser {
 
   MyUser(
       {this.profilePicture = 'N/A',
-      this.uuid = 'N/A',
+      this.uid = 'N/A',
       this.userId = 'N/A',
       this.username = 'N/A',
       this.password = 'N/A',
@@ -97,7 +97,7 @@ class MyUser {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'uuid': uuid,
+      'uid': uid,
       'profilePicture': profilePicture,
       'userId': userId,
       'username': username,
@@ -145,7 +145,7 @@ class MyUser {
 
   factory MyUser.fromMap(Map<String, dynamic> map) {
     return MyUser(
-      uuid: map['uuid'] as String,
+      uid: map['uid'] as String,
       profilePicture: map['profilePicture'] as String,
       userId: map['userId'] as String,
       username: map['username'] as String,
@@ -197,7 +197,7 @@ class MyUser {
       MyUser.fromMap(json.decode(source) as Map<String, dynamic>);
 
   MyUser fromSnapshot(DataSnapshot snapshot) => MyUser(
-        uuid: snapshot.child('id').value.toString(),
+        uid: snapshot.child('uid').value.toString(),
         profilePicture: snapshot.child('profilePicture').value.toString(),
         userId: snapshot.child('userId').value.toString(),
         username: snapshot.child('username').value.toString(),
@@ -247,10 +247,10 @@ class MyUser {
         modeOfStudy: snapshot.child('modeOfStudy').value.toString(),
       );
 
-  List<MyUser> getUsers(DatabaseReference userRef) {
+  List<MyUser> getUsers(DatabaseReference usersRef) {
     List<MyUser> users = [];
 
-    userRef.onValue.listen((event) {
+    usersRef.onValue.listen((event) {
       for (final user in event.snapshot.children) {
         final retrievedUser = MyUser().fromSnapshot(user);
         users.add(retrievedUser);
