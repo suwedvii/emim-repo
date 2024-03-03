@@ -1,13 +1,13 @@
-import 'dart:convert';
-
+import 'package:emim/constants.dart';
 import 'package:emim/models/program.dart';
 import 'package:emim/screens/course_management/program_list.dart';
 import 'package:emim/widgets/add_faculty_and_cohort_modal.dart';
 import 'package:emim/widgets/add_program_modal.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:http/http.dart' as http;
 
 class CourseScreen extends ConsumerStatefulWidget {
   const CourseScreen({super.key, this.appBarTitle});
@@ -28,45 +28,33 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
   void initState() {
     super.initState();
     _loadPrograms();
-    print(programs);
   }
 
   void _loadPrograms() async {
     List<Program> retrievedPrograms = [];
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
 
     try {
-      final response = await http.get(url);
+      final programsRef = FirebaseDatabase.instance.ref().child('programs');
 
-      if (response.body.isEmpty) {
-        return;
-      }
-
-      final dynamic decodedData = json.decode(response.body);
-
-      if (decodedData == null || decodedData is! Map<String, dynamic>) {
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('No data found')));
-        return;
-      }
-
-      final Map<String, dynamic> listData = decodedData;
-
-      for (final program in listData.entries) {
-        retrievedPrograms.add(
-          Program.fromMap(program.value),
-        );
-      }
+      programsRef.onValue.listen((event) {
+        for (final program in event.snapshot.children) {
+          final retrievedProgram = Program.fromSnapshot(program);
+          print(retrievedProgram.description);
+          setState(() {
+            retrievedPrograms.add(retrievedProgram);
+          });
+        }
+      });
 
       setState(() {
         programs = retrievedPrograms;
         print(programs.length);
         isLoading = false;
       });
-    } catch (error) {
-      print(error);
+    } on FirebaseException catch (e) {
+      if (mounted) {
+        Constants().showMessage(context, e);
+      }
     }
   }
 

@@ -32,6 +32,13 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'eMiM',
       theme: ThemeData().copyWith(
+        dividerTheme: DividerTheme.of(context).copyWith(
+          indent: 32,
+          endIndent: 32,
+          thickness: 2,
+          color: lightColorScheme.primary,
+          space: 8,
+        ),
         textTheme: GoogleFonts.latoTextTheme().copyWith(),
         colorScheme: lightColorScheme,
         appBarTheme: const AppBarTheme().copyWith(

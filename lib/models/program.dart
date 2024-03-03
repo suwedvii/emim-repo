@@ -1,6 +1,8 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
+
 List<String> durations = [
   '3 Months',
   '6 Months',
@@ -18,7 +20,7 @@ class Program {
   String description;
   String faculty;
   String duration;
-  int semesters;
+  String semesters;
   Program(
       {this.programId = 'N/A',
       this.programCode = 'N/A',
@@ -26,7 +28,7 @@ class Program {
       this.description = 'N/A',
       this.faculty = 'N/A',
       this.duration = 'N/A',
-      this.semesters = 0});
+      this.semesters = 'N/A'});
 
   Program copyWith({
     String? programId,
@@ -35,7 +37,7 @@ class Program {
     String? description,
     String? faculty,
     String? duration,
-    int? semesters,
+    String? semesters,
   }) {
     return Program(
       programId: programId ?? this.programId,
@@ -68,7 +70,7 @@ class Program {
       description: map['description'] as String,
       faculty: map['faculty'] as String,
       duration: map['duration'] as String,
-      semesters: map['semesters'] as int,
+      semesters: map['semesters'] as String,
     );
   }
 
@@ -77,6 +79,17 @@ class Program {
   factory Program.fromJson(String source) =>
       Program.fromMap(json.decode(source) as Map<String, dynamic>);
 
+  factory Program.fromSnapshot(DataSnapshot programSnapshot) {
+    return Program(
+      programId: programSnapshot.child('programId').value.toString(),
+      programCode: programSnapshot.child('programCode').value.toString(),
+      programName: programSnapshot.child('programName').value.toString(),
+      description: programSnapshot.child('description').value.toString(),
+      faculty: programSnapshot.child('faculty').value.toString(),
+      duration: programSnapshot.child('duration').value.toString(),
+      semesters: programSnapshot.child('semesters').value.toString(),
+    );
+  }
   @override
   String toString() {
     return 'Program(programId: $programId, programCode: $programCode, programName: $programName, description: $description, faculty: $faculty, duration: $duration, semesters: $semesters)';

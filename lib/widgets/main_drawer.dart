@@ -52,19 +52,19 @@ class MainDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.room_preferences_outlined),
+            title: const Text('Room Management'),
+            onTap: () {
+              onItemTapped('room management');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings'),
             onTap: () {
               onItemTapped('settings');
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.room_preferences_outlined),
-            title: const Text('Room Management'),
-            onTap: () {
-              onItemTapped('room management');
-            },
-          )
         ],
       ),
     );

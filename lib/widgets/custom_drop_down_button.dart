@@ -21,9 +21,11 @@ class CustomDropdown extends StatefulWidget {
 class _CustomDropdownState extends State<CustomDropdown> {
   @override
   Widget build(BuildContext context) {
+    List<String> items = ['Select ${widget.label}', ...widget.items];
+
     return DropdownButtonFormField<String>(
-      value: widget.value,
-      items: widget.items.map((String item) {
+      value: items[0],
+      items: items.map((String item) {
         return DropdownMenuItem<String>(
           value: item,
           child: Text(item.toUpperCase()),

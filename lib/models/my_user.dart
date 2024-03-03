@@ -259,4 +259,12 @@ class MyUser {
 
     return users;
   }
+
+  String getFullName(MyUser user) {
+    final _firstname = user.firstName;
+    final _otherNames = user.otherNames;
+    final _surname = user.lastName;
+
+    return '$_firstname $_otherNames $_surname';
+  }
 }

@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:emim/models/program.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
@@ -26,7 +25,7 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   String programName = '';
   String description = '';
   String selectedFaculty = '';
-  int semesters = 0;
+  String semesters = '';
 
   List<String> fetchedFaculties = ['Select Faculty'];
 
@@ -176,8 +175,8 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
                         }
                         return null;
                       },
-                      onValueSaved: (vallue) {
-                        semesters = int.parse(vallue!);
+                      onValueSaved: (value) {
+                        semesters = value!;
                       },
                       label: 'Semesters'),
                   const SizedBox(

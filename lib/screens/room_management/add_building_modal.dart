@@ -1,5 +1,5 @@
+import 'package:emim/constants.dart';
 import 'package:emim/models/building.dart';
-import 'package:emim/models/course.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/my_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,7 +17,7 @@ class _AddBuildingModalState extends State<AddBuildingModal> {
   bool isLoading = false;
   final form = GlobalKey<FormState>();
   String enteredText = '';
-  String selectedCampus = campuses[0];
+  String selectedCampus = Constants().campuses[0];
   String buildingId = 'B01';
 
   void _addBuilding(BuildContext ctx) {
@@ -88,7 +88,7 @@ class _AddBuildingModalState extends State<AddBuildingModal> {
                   label: 'Building Name'),
               const SizedBox(height: 8),
               CustomDropdown(
-                  items: campuses,
+                  items: Constants().campuses,
                   value: selectedCampus,
                   onChanged: (String? value) {
                     if (value == null) return;
