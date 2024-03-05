@@ -10,9 +10,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class AddCourseBottomSheetModal extends StatefulWidget {
-  const AddCourseBottomSheetModal({super.key, required this.program});
+  const AddCourseBottomSheetModal(
+      {super.key, required this.program, this.course});
 
   final Program program;
+  final Course? course;
 
   @override
   State<AddCourseBottomSheetModal> createState() =>
@@ -21,6 +23,7 @@ class AddCourseBottomSheetModal extends StatefulWidget {
 
 class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
   final form = GlobalKey<FormState>();
+  Course? course;
   bool isLoading = true;
   String? error;
   String semester = '';
@@ -41,6 +44,7 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
     _getPrograms();
     _getInstructors();
     _getCourses();
+    course = widget.course;
   }
 
   @override
@@ -61,7 +65,7 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'ADD COURSE',
+                '${course != null ? 'UPDATE' : 'ADD'} COURSE',
                 style: Theme.of(context)
                     .textTheme
                     .bodyLarge!
@@ -72,6 +76,7 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
                 height: 8,
               ),
               MyTextFormFiled(
+                  initialValue: course?.courseName,
                   onValidate: (value) {
                     if (value == null ||
                         value.trim().isEmpty ||

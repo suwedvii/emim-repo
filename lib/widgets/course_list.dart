@@ -1,24 +1,31 @@
+import 'package:emim/models/course.dart';
 import 'package:emim/models/program.dart';
-import 'package:emim/screens/course_management/program_details_screen..dart';
+import 'package:emim/screens/course_management/course_details.dart';
 import 'package:flutter/material.dart';
 
-class ProgramList extends StatelessWidget {
-  const ProgramList({super.key, required this.programs});
+class CourseList extends StatelessWidget {
+  const CourseList({super.key, required this.courses, required this.program});
 
-  final List<Program> programs;
+  final List<Course> courses;
+  final Program program;
 
-  void _goToProgramDetails(BuildContext ctx, Program program) {
-    Navigator.of(ctx).push(MaterialPageRoute(
-        builder: (context) => ProgramDetailsScreen(program: program)));
+  void _goToCourseDetails(
+      BuildContext context, Course course, Program program) {
+    showModalBottomSheet(
+        context: context,
+        builder: (ctx) => CourseDetails(
+              course: course,
+              program: program,
+            ));
   }
 
   @override
   Widget build(BuildContext context) {
     Widget content = ListView.builder(
-      itemCount: programs.length,
+      itemCount: courses.length,
       itemBuilder: (ctx, index) => GestureDetector(
         onTap: () {
-          _goToProgramDetails(context, programs[index]);
+          _goToCourseDetails(context, courses[index], program);
         },
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
@@ -27,7 +34,7 @@ class ProgramList extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  programs[index].programCode,
+                  courses[index].courseCode,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge!
@@ -35,13 +42,13 @@ class ProgramList extends StatelessWidget {
                 ),
                 const Divider(),
                 Text(
-                  programs[index].programName,
+                  courses[index].courseName,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
                 const Divider(),
                 Text(
-                  programs[index].faculty,
+                  courses[index].instructor,
                   style: Theme.of(context).textTheme.labelMedium,
                 )
               ],
@@ -51,7 +58,7 @@ class ProgramList extends StatelessWidget {
       ),
     );
 
-    if (programs.isEmpty) {
+    if (courses.isEmpty) {
       content = const Center(
         child: Text('No Programs added'),
       );

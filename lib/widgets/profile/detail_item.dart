@@ -16,7 +16,7 @@ class DetailItem extends StatelessWidget {
         const Spacer(),
         Text(
           description,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );

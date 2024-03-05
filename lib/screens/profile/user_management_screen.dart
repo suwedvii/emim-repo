@@ -92,31 +92,17 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
         spacing: 6,
         children: [
           SpeedDialChild(
-            child: const Icon(Icons.person_2_outlined),
-            label: 'Add Student',
+            child: const Icon(Icons.person_add_alt_outlined),
+            label: 'Create User',
             onTap: () {
               _openAddUserBottomModal('student');
             },
           ),
           SpeedDialChild(
-            child: const Icon(Icons.edit_square),
-            label: 'Add Instructor',
+            child: const Icon(Icons.people_alt_outlined),
+            label: 'Batch Creation',
             onTap: () {
               _openAddUserBottomModal('instructor');
-            },
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.attach_money),
-            label: 'Add Accountant',
-            onTap: () {
-              _openAddUserBottomModal('accountant');
-            },
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.computer_rounded),
-            label: 'Add Administrator',
-            onTap: () {
-              _openAddUserBottomModal('administrator');
             },
           ),
         ],

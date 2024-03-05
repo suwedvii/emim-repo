@@ -19,6 +19,7 @@ class Program {
   String programName;
   String description;
   String faculty;
+  String campus;
   String duration;
   String semesters;
   Program(
@@ -27,6 +28,7 @@ class Program {
       this.programName = 'N/A',
       this.description = 'N/A',
       this.faculty = 'N/A',
+      this.campus = 'N/A',
       this.duration = 'N/A',
       this.semesters = 'N/A'});
 
@@ -36,6 +38,7 @@ class Program {
     String? programName,
     String? description,
     String? faculty,
+    String? campus,
     String? duration,
     String? semesters,
   }) {
@@ -45,6 +48,7 @@ class Program {
       programName: programName ?? this.programName,
       description: description ?? this.description,
       faculty: faculty ?? this.faculty,
+      campus: campus ?? this.campus,
       duration: duration ?? this.duration,
       semesters: semesters ?? this.semesters,
     );
@@ -57,6 +61,7 @@ class Program {
       'programName': programName,
       'description': description,
       'faculty': faculty,
+      'campus': campus,
       'duration': duration,
       'semesters': semesters,
     };
@@ -69,6 +74,7 @@ class Program {
       programName: map['programName'] as String,
       description: map['description'] as String,
       faculty: map['faculty'] as String,
+      campus: map['campus'] as String,
       duration: map['duration'] as String,
       semesters: map['semesters'] as String,
     );
@@ -86,13 +92,14 @@ class Program {
       programName: programSnapshot.child('programName').value.toString(),
       description: programSnapshot.child('description').value.toString(),
       faculty: programSnapshot.child('faculty').value.toString(),
+      campus: programSnapshot.child('campus').value.toString(),
       duration: programSnapshot.child('duration').value.toString(),
       semesters: programSnapshot.child('semesters').value.toString(),
     );
   }
   @override
   String toString() {
-    return 'Program(programId: $programId, programCode: $programCode, programName: $programName, description: $description, faculty: $faculty, duration: $duration, semesters: $semesters)';
+    return 'Program(programId: $programId, programCode: $programCode, programName: $programName, description: $description, faculty: $faculty, campus: $campus, duration: $duration, semesters: $semesters,)';
   }
 
   @override
@@ -104,6 +111,7 @@ class Program {
         other.programName == programName &&
         other.description == description &&
         other.faculty == faculty &&
+        other.campus == campus &&
         other.duration == duration &&
         other.semesters == semesters;
   }
@@ -115,6 +123,7 @@ class Program {
         programName.hashCode ^
         description.hashCode ^
         faculty.hashCode ^
+        campus.hashCode ^
         duration.hashCode ^
         semesters.hashCode;
   }

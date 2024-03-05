@@ -3,6 +3,7 @@ import 'package:emim/models/program.dart';
 import 'package:emim/screens/course_management/program_list.dart';
 import 'package:emim/widgets/add_faculty_and_cohort_modal.dart';
 import 'package:emim/widgets/add_program_modal.dart';
+import 'package:emim/widgets/profile/my_toggle_switch.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +23,16 @@ class CourseScreen extends ConsumerStatefulWidget {
 
 class _CourseScreenState extends ConsumerState<CourseScreen> {
   List<Program> programs = [];
+  List<Program> filteredPrograms = [];
   bool isLoading = true;
+  List<String> campuses = ['All', ...Constants().campuses];
+  String? selectedCampus;
 
   @override
   void initState() {
     super.initState();
     _loadPrograms();
+    selectedCampus = campuses[0];
   }
 
   void _loadPrograms() async {
@@ -86,6 +91,14 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
   @override
   Widget build(BuildContext context) {
     // Widget content = Scaffold(
+    if (selectedCampus!.toLowerCase() == 'all') {
+      filteredPrograms = programs;
+    } else {
+      filteredPrograms = programs
+          .where((program) =>
+              program.campus.toLowerCase() == selectedCampus!.toLowerCase())
+          .toList();
+    }
     return Scaffold(
       floatingActionButton: SpeedDial(
         overlayOpacity: 0,
@@ -120,7 +133,23 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ProgramList(programs: programs),
+          : Container(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+              child: Column(
+                children: [
+                  MyToggleSwitch(
+                      labels: campuses,
+                      minHeight: 30,
+                      onToggled: (index, campus) {
+                        setState(() {
+                          selectedCampus = campus;
+                        });
+                      }),
+                  Expanded(
+                    child: ProgramList(programs: filteredPrograms),
+                  ),
+                ],
+              )),
     );
 
     // if (widget.appBarTitle == null) {

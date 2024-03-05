@@ -58,138 +58,6 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
   String selectedRole = '';
   late DatabaseReference userRef;
 
-  void _addUser() async {
-    Map<String, dynamic>? user;
-
-    if (formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
-      });
-
-      formKey.currentState!.save();
-
-      final password = '$firstname${Random().nextInt(100).toString()}';
-
-      try {
-        final signUpUserTask = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-
-        if (signUpUserTask.additionalUserInfo == null) return;
-        final uid = signUpUserTask.user!.uid;
-
-        if (selectedRole.toLowerCase() == 'student') {
-          user = MyUser(
-                  uid: uid,
-                  userId: _getUserId(),
-                  username: '${firstname[0]}.$surname',
-                  emailAddress: email,
-                  password: password,
-                  firstName: firstname,
-                  lastName: surname,
-                  otherNames: othernames,
-                  role: selectedRole,
-                  gender: selectedGender,
-                  userCohort: selectedCohort,
-                  userCampus: selectedCampus,
-                  userProgram: selectedProgram,
-                  yearOdStudy: selectedYearOfStudy,
-                  creationDate: DateTime.now().toString(),
-                  accountStatus: 'created',
-                  modeOfEntry: selectModeOfEntry,
-                  modeOfStudy: selectModeOfStudy)
-              .toMap();
-        } else {
-          user = MyUser(
-                  uid: uid,
-                  userId: _getUserId(),
-                  username: '${firstname[0]}.$surname',
-                  emailAddress: email,
-                  password: password,
-                  firstName: firstname,
-                  lastName: surname,
-                  otherNames: othernames,
-                  role: selectedRole,
-                  gender: selectedGender,
-                  creationDate: DateTime.now().toString(),
-                  accountStatus: 'created')
-              .toMap();
-        }
-
-        userRef.child(uid).set(user).whenComplete(() {
-          isLoading = false;
-          Navigator.of(context).pop();
-        });
-      } on FirebaseException catch (e) {
-        if (mounted) {
-          Constants().showMessage(context, e);
-          return;
-        }
-      }
-    }
-  }
-
-  void _loadCohorts() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final List<String> retrievedCohorts = ['Select Cohort'];
-      final url =
-          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'cohorts.json');
-      final response = await http.get(url);
-      final Map<String, dynamic> listData = json.decode(response.body);
-
-      // Check if the widget is still mounted before updating the state
-      if (mounted) {
-        for (final cohort in listData.entries) {
-          retrievedCohorts.add(cohort.value['name']);
-        }
-        setState(() {
-          cohorts = retrievedCohorts;
-          isLoading = false;
-        });
-      }
-    } on FirebaseException catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
-    }
-  }
-
-  void _loadPrograms() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      final List<String> retrievedPrograms = ['Select Program'];
-      final url =
-          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
-      final response = await http.get(url);
-      final Map<String, dynamic> listData = json.decode(response.body);
-
-      // Check if the widget is still mounted before updating the state
-      if (mounted) {
-        for (final program in listData.entries) {
-          retrievedPrograms.add(program.value['programCode']);
-        }
-        setState(() {
-          programs = retrievedPrograms;
-          isLoading = false;
-        });
-      }
-    } on Exception catch (error) {
-      if (kDebugMode) {
-        print(error);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    formKey.currentState?.dispose();
-  }
-
   @override
   void initState() {
     super.initState();
@@ -407,6 +275,138 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         ),
       ),
     );
+  }
+
+  void _addUser() async {
+    Map<String, dynamic>? user;
+
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      formKey.currentState!.save();
+
+      final password = '$firstname${Random().nextInt(100).toString()}';
+
+      try {
+        final signUpUserTask = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+
+        if (signUpUserTask.additionalUserInfo == null) return;
+        final uid = signUpUserTask.user!.uid;
+
+        if (selectedRole.toLowerCase() == 'student') {
+          user = MyUser(
+                  uid: uid,
+                  userId: _getUserId(),
+                  username: '${firstname[0]}.$surname',
+                  emailAddress: email,
+                  password: password,
+                  firstName: firstname,
+                  lastName: surname,
+                  otherNames: othernames,
+                  role: selectedRole,
+                  gender: selectedGender,
+                  userCohort: selectedCohort,
+                  userCampus: selectedCampus,
+                  userProgram: selectedProgram,
+                  yearOdStudy: selectedYearOfStudy,
+                  creationDate: DateTime.now().toString(),
+                  accountStatus: 'created',
+                  modeOfEntry: selectModeOfEntry,
+                  modeOfStudy: selectModeOfStudy)
+              .toMap();
+        } else {
+          user = MyUser(
+                  uid: uid,
+                  userId: _getUserId(),
+                  username: '${firstname[0]}.$surname',
+                  emailAddress: email,
+                  password: password,
+                  firstName: firstname,
+                  lastName: surname,
+                  otherNames: othernames,
+                  role: selectedRole,
+                  gender: selectedGender,
+                  creationDate: DateTime.now().toString(),
+                  accountStatus: 'created')
+              .toMap();
+        }
+
+        userRef.child(uid).set(user).whenComplete(() {
+          isLoading = false;
+          Navigator.of(context).pop();
+        });
+      } on FirebaseException catch (e) {
+        if (mounted) {
+          Constants().showMessage(context, e);
+          return;
+        }
+      }
+    }
+  }
+
+  void _loadCohorts() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final List<String> retrievedCohorts = ['Select Cohort'];
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'cohorts.json');
+      final response = await http.get(url);
+      final Map<String, dynamic> listData = json.decode(response.body);
+
+      // Check if the widget is still mounted before updating the state
+      if (mounted) {
+        for (final cohort in listData.entries) {
+          retrievedCohorts.add(cohort.value['name']);
+        }
+        setState(() {
+          cohorts = retrievedCohorts;
+          isLoading = false;
+        });
+      }
+    } on FirebaseException catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
+
+  void _loadPrograms() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final List<String> retrievedPrograms = ['Select Program'];
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
+      final response = await http.get(url);
+      final Map<String, dynamic> listData = json.decode(response.body);
+
+      // Check if the widget is still mounted before updating the state
+      if (mounted) {
+        for (final program in listData.entries) {
+          retrievedPrograms.add(program.value['programCode']);
+        }
+        setState(() {
+          programs = retrievedPrograms;
+          isLoading = false;
+        });
+      }
+    } on Exception catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    formKey.currentState?.dispose();
   }
 
   String _getUserNumber() {
