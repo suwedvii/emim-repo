@@ -98,11 +98,12 @@ class _AssignMentsScreenState extends ConsumerState<AssignMentsScreen> {
   @override
   Widget build(BuildContext context) {
     Widget content = Scaffold(
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.assignment_add),
+        label: const Text('Add Assignment'),
         onPressed: () {
           _openAddAssignmentScreen();
         },
-        child: const Icon(Icons.assignment_add),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),

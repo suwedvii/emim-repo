@@ -53,6 +53,7 @@ dependencies:
   firebase_storage: ^11.6.0
   firebase_database: ^10.4.5
   toggle_switch: ^2.1.0
+  quickalert: ^1.1.0
 
 dev_dependencies:
   flutter_test:

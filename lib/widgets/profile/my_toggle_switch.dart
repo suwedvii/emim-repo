@@ -5,13 +5,13 @@ class MyToggleSwitch extends StatefulWidget {
   const MyToggleSwitch(
       {super.key,
       this.title,
-      this.minWidth,
+      this.maxWidth,
       this.minHeight,
       required this.labels,
       required this.onToggled});
 
   final String? title;
-  final double? minWidth;
+  final double? maxWidth;
   final double? minHeight;
   final List<String> labels;
   final Function(int index, String selectedItem) onToggled;
@@ -26,6 +26,8 @@ class _MyToggleSwitchState2 extends State<MyToggleSwitch> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.title != null)
           Column(
@@ -47,8 +49,9 @@ class _MyToggleSwitchState2 extends State<MyToggleSwitch> {
           radiusStyle: true,
           borderColor: [Theme.of(context).colorScheme.primary],
           borderWidth: 1,
-          minWidth: widget.minWidth ?? 360 / widget.labels.length,
-          minHeight: widget.minHeight ?? 50.0,
+          minWidth: widget.maxWidth != null
+              ? ((widget.maxWidth! / widget.labels.length) / 2) - 6
+              : double.infinity,
           fontSize: 16.0,
           initialLabelIndex: initialSelectedUserIndex,
           activeBgColor: [Theme.of(context).colorScheme.primary],
@@ -58,10 +61,12 @@ class _MyToggleSwitchState2 extends State<MyToggleSwitch> {
           totalSwitches: widget.labels.length,
           labels: widget.labels,
           onToggle: (index) {
+            setState(() {
+              initialSelectedUserIndex = index!;
+            });
             widget.onToggled(index!, widget.labels[index]);
-            initialSelectedUserIndex = index;
           },
-        ),
+        )
       ],
     );
   }

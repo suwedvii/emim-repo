@@ -77,200 +77,204 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
           width: double.infinity,
           child: Container(
             margin: EdgeInsets.fromLTRB(12, 16, 16, keyboardSpace + 16),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Add User',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge!
-                          .copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Enter a valid name';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        firstname = value!;
-                      },
-                      label: 'First Name'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Enter a valid name';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        surname = value!;
-                      },
-                      label: 'Surname'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Enter a valid name';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        othernames = value!;
-                      },
-                      label: 'Other Names'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            !value.trim().contains('@')) {
-                          return 'Enter a valid email address';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        email = value!;
-                      },
-                      label: 'Email'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyToggleSwitch(
-                      title: 'Gender',
-                      labels: Constants().genders,
-                      onToggled: (index, gender) {
-                        selectedGender = gender;
-                      }),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyToggleSwitch(
-                      title: 'Role',
-                      labels: Constants().roles,
-                      onToggled: (index, role) {
-                        setState(() {
-                          selectedRole = role;
-                        });
-                      }),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (selectedRole.toLowerCase() == 'student')
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MyToggleSwitch(
-                          title: 'Campus',
-                          labels: Constants().campuses,
-                          onToggled: (index, capmus) {
-                            selectedCampus = capmus;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        Row(
-                          children: [
-                            MyToggleSwitch(
-                              title: 'Mode of Entry',
-                              minWidth: 86,
-                              labels: modesOfEntry,
-                              onToggled: (index, mdeofEntry) {
-                                selectModeOfEntry = mdeofEntry;
-                              },
-                            ),
-                            const SizedBox(
-                              width: 12,
-                            ),
-                            MyToggleSwitch(
-                              title: 'Mode of Study',
-                              minWidth: 86,
-                              labels: modesOfStudy,
-                              onToggled: (index, modeOfStudy) {
-                                selectModeOfStudy = modeOfStudy;
-                              },
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        CustomDropdown(
-                            items: programs,
-                            value:
-                                programs.isEmpty ? 'No Programs' : programs[0],
-                            onChanged: (String? value) {
-                              if (value == null) return;
-                              setState(() {
-                                selectedProgram = value;
-                              });
-                            },
-                            label: 'Program'),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: CustomDropdown(
-                                  items: years,
-                                  value: years[0],
-                                  onChanged: (String? value) {
-                                    if (value == null) return;
-                                    setState(() {
-                                      selectedYearOfStudy = value;
-                                    });
-                                  },
-                                  label: 'Year of Study'),
-                            ),
-                            const SizedBox(
-                              width: 6,
-                            ),
-                            Expanded(
-                              child: CustomDropdown(
-                                  items: cohorts,
-                                  value: cohorts.isEmpty
-                                      ? 'No cohorts'
-                                      : cohorts[0],
-                                  onChanged: (String? vaule) {
-                                    setState(() {
-                                      selectedCohort = vaule!;
-                                    });
-                                  },
-                                  label: 'Cohort'),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 12,
-                        ),
-                      ],
+            child: SingleChildScrollView(child: LayoutBuilder(
+              builder: (context, constraints) {
+                final maxWidth = constraints.maxWidth;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Add User',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge!
+                            .copyWith(fontWeight: FontWeight.bold)),
+                    const SizedBox(
+                      height: 10,
                     ),
-                  ElevatedButton(
-                    onPressed: !isLoading ? _addUser : null,
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(),
-                          )
-                        : const Text('Add User'),
-                  ),
-                ],
-              ),
-            ),
+                    MyTextFormFiled(
+                        onValidate: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter a valid name';
+                          }
+                          return null;
+                        },
+                        onValueSaved: (value) {
+                          firstname = value!;
+                        },
+                        label: 'First Name'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MyTextFormFiled(
+                        onValidate: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter a valid name';
+                          }
+                          return null;
+                        },
+                        onValueSaved: (value) {
+                          surname = value!;
+                        },
+                        label: 'Surname'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MyTextFormFiled(
+                        onValidate: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Enter a valid name';
+                          }
+                          return null;
+                        },
+                        onValueSaved: (value) {
+                          othernames = value!;
+                        },
+                        label: 'Other Names'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MyTextFormFiled(
+                        onValidate: (value) {
+                          if (value == null ||
+                              value.trim().isEmpty ||
+                              !value.trim().contains('@')) {
+                            return 'Enter a valid email address';
+                          }
+                          return null;
+                        },
+                        onValueSaved: (value) {
+                          email = value!;
+                        },
+                        label: 'Email'),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MyToggleSwitch(
+                        title: 'Gender',
+                        labels: Constants().genders,
+                        onToggled: (index, gender) {
+                          selectedGender = gender;
+                        }),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    MyToggleSwitch(
+                        title: 'Role',
+                        labels: Constants().roles,
+                        onToggled: (index, role) {
+                          setState(() {
+                            selectedRole = role;
+                          });
+                        }),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    if (selectedRole.toLowerCase() == 'student')
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          MyToggleSwitch(
+                            title: 'Campus',
+                            labels: Constants().campuses,
+                            onToggled: (index, capmus) {
+                              selectedCampus = capmus;
+                            },
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          Row(
+                            children: [
+                              MyToggleSwitch(
+                                title: 'Mode of Entry',
+                                maxWidth: maxWidth,
+                                labels: modesOfEntry,
+                                onToggled: (index, mdeofEntry) {
+                                  selectModeOfEntry = mdeofEntry;
+                                },
+                              ),
+                              const SizedBox(
+                                width: 12,
+                              ),
+                              MyToggleSwitch(
+                                title: 'Mode of Study',
+                                maxWidth: maxWidth,
+                                labels: modesOfStudy,
+                                onToggled: (index, modeOfStudy) {
+                                  selectModeOfStudy = modeOfStudy;
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          CustomDropdown(
+                              items: programs,
+                              value: programs.isEmpty
+                                  ? 'No Programs'
+                                  : programs[0],
+                              onChanged: (String? value) {
+                                if (value == null) return;
+                                setState(() {
+                                  selectedProgram = value;
+                                });
+                              },
+                              label: 'Program'),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: CustomDropdown(
+                                    items: years,
+                                    value: years[0],
+                                    onChanged: (String? value) {
+                                      if (value == null) return;
+                                      setState(() {
+                                        selectedYearOfStudy = value;
+                                      });
+                                    },
+                                    label: 'Year of Study'),
+                              ),
+                              const SizedBox(
+                                width: 6,
+                              ),
+                              Expanded(
+                                child: CustomDropdown(
+                                    items: cohorts,
+                                    value: cohorts.isEmpty
+                                        ? 'No cohorts'
+                                        : cohorts[0],
+                                    onChanged: (String? vaule) {
+                                      setState(() {
+                                        selectedCohort = vaule!;
+                                      });
+                                    },
+                                    label: 'Cohort'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                        ],
+                      ),
+                    ElevatedButton(
+                      onPressed: !isLoading ? _addUser : null,
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(),
+                            )
+                          : const Text('Add User'),
+                    ),
+                  ],
+                );
+              },
+            )),
           ),
         ),
       ),
@@ -340,7 +344,7 @@ class _AddUserScreenState extends ConsumerState<AddUserScreen> {
         });
       } on FirebaseException catch (e) {
         if (mounted) {
-          Constants().showMessage(context, e);
+          Constants().showMessage(context, e.message.toString());
           return;
         }
       }

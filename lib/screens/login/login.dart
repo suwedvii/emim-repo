@@ -16,6 +16,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  bool isLoading = false;
   final auth = FirebaseAuth.instance;
   final form = GlobalKey<FormState>();
 
@@ -35,7 +36,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         _goToTabsScreen(result.user!);
       } on FirebaseException catch (e) {
         if (mounted) {
-          Constants().showMessage(context, e);
+          Constants().showMessage(context, e.message.toString());
         }
       }
     }

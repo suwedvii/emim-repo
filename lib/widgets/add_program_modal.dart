@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:emim/constants.dart';
 import 'package:emim/models/program.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
@@ -22,6 +21,7 @@ class AddProgramModal extends ConsumerStatefulWidget {
 
 class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   TextEditingController? programNameController;
+  final formKey = GlobalKey<FormState>();
   String programDuration = durations[0];
   String programCode = '';
   String programName = '';
@@ -32,86 +32,7 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
 
   List<String> fetchedFaculties = ['Select Faculty'];
 
-  bool isLoadingFacultiesAndDurations = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadFaculties();
-  }
-
-  final formKey = GlobalKey<FormState>();
-
-  void _loadFaculties() async {
-    final List<String> loadedFaculties = [];
-
-    final url =
-        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'faculties.json');
-
-    final response = await http.get(url);
-    final Map<String, dynamic> listData = json.decode(response.body);
-
-    for (final faculty in listData.entries) {
-      loadedFaculties.add(faculty.value['name']);
-    }
-
-    setState(() {
-      fetchedFaculties = loadedFaculties;
-      isLoadingFacultiesAndDurations = false;
-    });
-
-    print(fetchedFaculties);
-  }
-
-  void _addProgram(BuildContext context) async {
-    if (formKey.currentState!.validate()) {
-      formKey.currentState!.save();
-
-      final newProgram = Program(
-              description: description,
-              faculty: selectedFaculty,
-              campus: selecetedCampus,
-              programCode: programCode,
-              programName: programName,
-              semesters: semesters,
-              duration: programDuration)
-          .toJson();
-
-      final currentContext = context;
-
-      final url =
-          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
-
-      try {
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: newProgram,
-        );
-
-        if (currentContext.mounted) {
-          Navigator.of(context).pop<Program>(
-            Program(
-                programId: response.body,
-                description: description,
-                duration: programDuration,
-                faculty: selectedFaculty,
-                programCode: programCode,
-                programName: programName,
-                semesters: semesters),
-          );
-        }
-      } catch (error) {
-        print(error);
-      }
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    formKey.currentState?.dispose();
-  }
+  bool isLoading = true;
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +42,7 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
       padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 30),
       child: Form(
         key: formKey,
-        child: isLoadingFacultiesAndDurations
+        child: isLoading
             ? const Center(
                 child: LinearProgressIndicator(),
               )
@@ -269,5 +190,89 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
               ),
       ),
     );
+  }
+
+  void _loadFaculties() async {
+    final List<String> loadedFaculties = [];
+
+    final url =
+        Uri.https('emimbacke-default-rtdb.firebaseio.com', 'faculties.json');
+
+    final response = await http.get(url);
+    final Map<String, dynamic> listData = json.decode(response.body);
+
+    for (final faculty in listData.entries) {
+      loadedFaculties.add(faculty.value['name']);
+    }
+
+    setState(() {
+      fetchedFaculties = loadedFaculties;
+      isLoading = false;
+    });
+
+    print(fetchedFaculties);
+  }
+
+  void _addProgram(BuildContext context) async {
+    if (formKey.currentState!.validate()) {
+      formKey.currentState!.save();
+
+      final newProgram = Program(
+              description: description,
+              faculty: selectedFaculty,
+              campus: selecetedCampus,
+              programCode: programCode,
+              programName: programName,
+              semesters: semesters,
+              duration: programDuration)
+          .toJson();
+
+      final currentContext = context;
+
+      final url =
+          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
+
+      try {
+        final response = await http.post(
+          url,
+          headers: {'Content-Type': 'application/json'},
+          body: newProgram,
+        );
+
+        if (currentContext.mounted) {
+          Navigator.of(context).pop<Program>(
+            Program(
+                programId: response.body,
+                description: description,
+                duration: programDuration,
+                faculty: selectedFaculty,
+                programCode: programCode,
+                programName: programName,
+                semesters: semesters),
+          );
+        }
+      } catch (error) {
+        print(error);
+      }
+    }
+  }
+
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFaculties();
+  }
+
+  @override
+  void dispose() {
+    formKey.currentState?.dispose();
+    super.dispose();
   }
 }

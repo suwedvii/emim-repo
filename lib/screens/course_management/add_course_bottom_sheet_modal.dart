@@ -57,146 +57,157 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
   Widget build(BuildContext context) {
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
     return Container(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 8 + keyboardSpace),
+      padding: EdgeInsets.fromLTRB(14, 16, 14, 8 + keyboardSpace),
       child: Form(
         key: form,
         child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${course != null ? 'UPDATE' : 'ADD'} COURSE',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyLarge!
-                    .copyWith(fontWeight: FontWeight.bold),
-              ),
-              const Divider(),
-              const SizedBox(
-                height: 8,
-              ),
-              MyTextFormFiled(
-                  initialValue: course?.courseName,
-                  onValidate: (value) {
-                    if (value == null ||
-                        value.trim().isEmpty ||
-                        value.trim().length < 5) {
-                      return 'Please enter a valid course name';
-                    }
-                    return null;
-                  },
-                  onValueSaved: (value) {
-                    enteredCoourseName = value!;
-                  },
-                  label: 'Course Name'),
-              const SizedBox(
-                height: 8,
-              ),
-              const SizedBox(
-                height: 8,
-              ),
-              if (!isLoading)
-                CustomDropdown(
-                  items: programs,
-                  value: programs.isEmpty ? 'No Programs' : programs[0],
-                  label: 'Program',
-                  onChanged: (String? value) {
-                    if (value == null) return;
-                    setState(() {
-                      selectedProgram = value;
-                    });
-                  },
-                ),
-              const SizedBox(
-                height: 8,
-              ),
-              if (!isLoading)
-                CustomDropdown(
-                  items: instructors,
-                  label: 'Instructor',
-                  value: instructors.isEmpty ? 'No Programs' : instructors[0],
-                  onChanged: (String? value) {
-                    if (value == null) return;
-                    setState(() {
-                      selectedInstructor = value;
-                    });
-                  },
-                ),
-              const SizedBox(
-                height: 8,
-              ),
-              MyToggleSwitch(
-                  title: 'Course Category',
-                  labels: Constants().courseCategories,
-                  onToggled: (index, item) {
-                    selectedCategory = item;
-                  }),
-              const SizedBox(
-                height: 8,
-              ),
-              Row(children: [
-                MyToggleSwitch(
-                    minWidth: 80,
-                    title: 'Campus',
-                    labels: Constants().campuses,
-                    onToggled: (index, campus) {
-                      selectedCampus = campus;
-                    }),
-                const Spacer(),
-                MyToggleSwitch(
-                    minWidth: 80,
-                    title: 'Semester',
-                    labels: Constants().semesters,
-                    onToggled: (index, semester) {
-                      selectedSemester = semester;
-                    })
-              ]),
-              const SizedBox(
-                height: 8,
-              ),
-              MyToggleSwitch(
-                  minWidth: 70,
-                  title: 'Year of Study',
-                  labels: Constants().years,
-                  onToggled: (index, year) {
-                    selectedYear = year;
-                  }),
-              const SizedBox(
-                height: 8,
-              ),
-              const Divider(),
-              const SizedBox(
-                height: 8,
-              ),
-              if (error != null)
-                Text(
-                  error!,
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: Theme.of(context).colorScheme.error,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              Row(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final maxWidth = constraints.maxWidth;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Spacer(),
-                  TextButton(
-                      onPressed: () {
-                        form.currentState!.reset();
-                      },
-                      child: const Text('Reset')),
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _addCourse,
-                    child: isLoading
-                        ? const SizedBox(
-                            height: 16,
-                            width: 16,
-                            child: CircularProgressIndicator(),
-                          )
-                        : const Text('Add Course'),
+                  Text(
+                    '${course != null ? 'UPDATE' : 'ADD'} COURSE',
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyLarge!
+                        .copyWith(fontWeight: FontWeight.bold),
                   ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyTextFormFiled(
+                      initialValue: course?.courseName,
+                      onValidate: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            value.trim().length < 5) {
+                          return 'Please enter a valid course name';
+                        }
+                        return null;
+                      },
+                      onValueSaved: (value) {
+                        enteredCoourseName = value!;
+                      },
+                      label: 'Course Name'),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  if (!isLoading)
+                    CustomDropdown(
+                      items: programs,
+                      value: programs.isEmpty ? 'No Programs' : programs[0],
+                      label: 'Program',
+                      onChanged: (String? value) {
+                        if (value == null) return;
+                        setState(() {
+                          selectedProgram = value;
+                        });
+                      },
+                    ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  if (!isLoading)
+                    CustomDropdown(
+                      items: instructors,
+                      label: 'Instructor',
+                      value:
+                          instructors.isEmpty ? 'No Programs' : instructors[0],
+                      onChanged: (String? value) {
+                        if (value == null) return;
+                        setState(() {
+                          selectedInstructor = value;
+                        });
+                      },
+                    ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyToggleSwitch(
+                      title: 'Course Category',
+                      labels: Constants().courseCategories,
+                      onToggled: (index, item) {
+                        selectedCategory = item;
+                      }),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Row(children: [
+                    Expanded(
+                      child: MyToggleSwitch(
+                          maxWidth: maxWidth,
+                          title: 'Campus',
+                          labels: Constants().campuses,
+                          onToggled: (index, campus) {
+                            selectedCampus = campus;
+                          }),
+                    ),
+                    const SizedBox(
+                      width: 6,
+                    ),
+                    Expanded(
+                      child: MyToggleSwitch(
+                          maxWidth: maxWidth,
+                          title: 'Semester',
+                          labels: Constants().semesters,
+                          onToggled: (index, semester) {
+                            selectedSemester = semester;
+                          }),
+                    )
+                  ]),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  MyToggleSwitch(
+                      title: 'Year of Study',
+                      labels: Constants().years,
+                      onToggled: (index, year) {
+                        selectedYear = year;
+                      }),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  const Divider(),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  if (error != null)
+                    Text(
+                      error!,
+                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                    ),
+                  Row(
+                    children: [
+                      const Spacer(),
+                      TextButton(
+                          onPressed: () {
+                            form.currentState!.reset();
+                          },
+                          child: const Text('Reset')),
+                      ElevatedButton(
+                        onPressed: isLoading ? null : _addCourse,
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(),
+                              )
+                            : const Text('Add Course'),
+                      ),
+                    ],
+                  )
                 ],
-              )
-            ],
+              );
+            },
           ),
         ),
       ),

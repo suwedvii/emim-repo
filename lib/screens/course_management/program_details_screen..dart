@@ -55,7 +55,6 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           MyToggleSwitch(
-              minHeight: 30,
               labels: yearsOfStudy!,
               onToggled: (index, year) {
                 setState(() {
@@ -66,7 +65,6 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
             height: 8,
           ),
           MyToggleSwitch(
-              minHeight: 30,
               labels: semesters!,
               onToggled: (index, semester) {
                 setState(() {
@@ -86,14 +84,12 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
       appBar: AppBar(
         title: Text('${widget.program.programCode} Courses'),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        child: IconButton(
-          onPressed: () {
-            _openAddCourseBottonSheetModal(context);
-          },
-          icon: const Icon(Icons.playlist_add),
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        label: const Text('Add Course'),
+        onPressed: () {
+          _openAddCourseBottonSheetModal(context);
+        },
+        icon: const Icon(Icons.playlist_add),
       ),
       body: content,
     );
@@ -137,6 +133,7 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
     } on FirebaseException catch (e) {
       setState(() {
         isLoading = false;
+        Constants().showMessage(context, e.message.toString());
       });
       return;
     }

@@ -47,7 +47,7 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
       });
     } on FirebaseException catch (e) {
       if (mounted) {
-        Constants().showMessage(context, e);
+        Constants().showMessage(context, e.message.toString());
       }
     }
   }
@@ -62,12 +62,9 @@ class _UserManagementScreenState extends ConsumerState<UserManagementScreen> {
 
     if (error == null) return;
 
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(error),
-      ),
-    );
+    if (mounted) {
+      Constants().showMessage(context, error);
+    }
   }
 
   @override

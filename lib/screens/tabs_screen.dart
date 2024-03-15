@@ -117,7 +117,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
         setState(() {
           isLoading = false;
         });
-        Constants().showMessage(context, e);
+        Constants().showMessage(context, e.message.toString());
       }
     }
   }

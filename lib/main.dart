@@ -33,8 +33,6 @@ class App extends StatelessWidget {
       title: 'eMiM',
       theme: ThemeData().copyWith(
         dividerTheme: DividerTheme.of(context).copyWith(
-          indent: 8,
-          endIndent: 8,
           thickness: 2,
           color: lightColorScheme.primary,
           space: 8,
