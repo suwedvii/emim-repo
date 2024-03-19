@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 // import 'package:emim/providers/faculties_provider.dart';
-import 'package:emim/widgets/my_text_form_field.dart';
+import 'package:emim/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

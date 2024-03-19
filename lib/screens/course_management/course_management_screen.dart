@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:emim/models/my_user.dart';
+import 'package:emim/screens/course_management/change_academic_year_bottom_sheet.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -14,18 +16,21 @@ import 'package:emim/widgets/add_program_modal.dart';
 import 'package:emim/widgets/custom_card_widget.dart';
 import 'package:emim/widgets/profile/my_toggle_switch.dart';
 
-class CourseScreen extends ConsumerStatefulWidget {
-  const CourseScreen({super.key, this.appBarTitle});
+class CourseManagementScreen extends ConsumerStatefulWidget {
+  const CourseManagementScreen(
+      {super.key, this.appBarTitle, required this.user});
 
   final String? appBarTitle;
+  final MyUser user;
 
   @override
-  ConsumerState<CourseScreen> createState() {
+  ConsumerState<CourseManagementScreen> createState() {
     return _CourseManagementScreenState();
   }
 }
 
-class _CourseManagementScreenState extends ConsumerState<CourseScreen> {
+class _CourseManagementScreenState
+    extends ConsumerState<CourseManagementScreen> {
   late List<Program> foundPrograms;
   late Stream<List<Program>> programs;
   List<Program> filteredPrograms = [];
@@ -59,6 +64,14 @@ class _CourseManagementScreenState extends ConsumerState<CourseScreen> {
         overlayOpacity: 0,
         spacing: 5,
         children: [
+          SpeedDialChild(
+            backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+            label: 'Change Academic Year',
+            child: const Icon(Icons.calendar_month_outlined),
+            onTap: () {
+              _openChangeAcademicYearBottomSheet();
+            },
+          ),
           SpeedDialChild(
             backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             label: 'Add Faculty',
@@ -158,6 +171,15 @@ class _CourseManagementScreenState extends ConsumerState<CourseScreen> {
               ),
             ],
           )),
+    );
+  }
+
+  void _openChangeAcademicYearBottomSheet() {
+    showModalBottomSheet(
+      useSafeArea: true,
+      isScrollControlled: true,
+      context: context,
+      builder: (ctx) => const ChangeAcademicYearBottomSheet(),
     );
   }
 

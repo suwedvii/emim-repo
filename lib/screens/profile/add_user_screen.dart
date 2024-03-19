@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:emim/constants.dart';
 import 'package:emim/models/my_user.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
-import 'package:emim/widgets/my_text_form_field.dart';
+import 'package:emim/widgets/custom_text_form_field.dart';
 import 'package:emim/widgets/profile/my_toggle_switch.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';

@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:emim/constants.dart';
 import 'package:emim/models/program.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
-import 'package:emim/widgets/my_text_form_field.dart';
+import 'package:emim/widgets/custom_text_form_field.dart';
 import 'package:emim/widgets/profile/my_toggle_switch.dart';
 // import 'package:emim/providers/faculties_provider.dart';
 // import 'package:emim/widgets/drop_down_button.dart';
