@@ -34,7 +34,7 @@ class CourseList extends StatelessWidget {
             child: Column(
               children: [
                 Text(
-                  courses[index].courseCode,
+                  courses[index].code,
                   style: Theme.of(context)
                       .textTheme
                       .bodyLarge!
@@ -42,7 +42,7 @@ class CourseList extends StatelessWidget {
                 ),
                 const Divider(),
                 Text(
-                  courses[index].courseName,
+                  courses[index].title,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),

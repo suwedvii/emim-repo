@@ -24,18 +24,19 @@ void main() async {
   );
 }
 
-class App extends StatelessWidget {
+class App extends ConsumerWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'eMiM',
       theme: ThemeData().copyWith(
         dividerTheme: DividerTheme.of(context).copyWith(
-          thickness: 2,
+          thickness: 1,
           color: lightColorScheme.primary,
-          space: 8,
+          space: 5,
         ),
         textTheme: GoogleFonts.latoTextTheme().copyWith(),
         colorScheme: lightColorScheme,

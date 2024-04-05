@@ -46,7 +46,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (ctx) => TabsScreen(user: user),
+          builder: (ctx) => const TabsScreen(),
         ),
       );
     }

@@ -1,23 +1,26 @@
 import 'package:emim/constants.dart';
 import 'package:emim/models/course.dart';
 import 'package:emim/models/program.dart';
+import 'package:emim/providers/courses_provider.dart';
 import 'package:emim/screens/course_management/add_course_bottom_sheet_modal.dart';
 import 'package:emim/widgets/course_list.dart';
-import 'package:emim/widgets/profile/my_toggle_switch.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
-class ProgramDetailsScreen extends StatefulWidget {
+class ProgramDetailsScreen extends ConsumerStatefulWidget {
   const ProgramDetailsScreen({super.key, required this.program});
 
   final Program program;
 
   @override
-  State<ProgramDetailsScreen> createState() => _ProgramDetailsScreenState();
+  ConsumerState<ProgramDetailsScreen> createState() =>
+      _ProgramDetailsScreenState();
 }
 
-class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
+class _ProgramDetailsScreenState extends ConsumerState<ProgramDetailsScreen> {
+  final form = GlobalKey<FormBuilderState>();
   bool isLoading = true;
   Program? program;
   List<String>? yearsOfStudy;
@@ -39,47 +42,86 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
   void initState() {
     super.initState();
     program = widget.program;
-    _getCourses();
     yearsOfStudy = _getYears();
-    selectedYearOfStudy = yearsOfStudy![0];
-    semesters = _getSemesters();
-    selectedSemester = semesters![0];
   }
 
   @override
   Widget build(BuildContext context) {
-    final semesterCourses = _getSemesterCourses();
-    Widget content = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MyToggleSwitch(
-              labels: yearsOfStudy!,
-              onToggled: (index, year) {
-                setState(() {
-                  selectedYearOfStudy = year;
-                });
-              }),
-          const SizedBox(
-            height: 8,
-          ),
-          MyToggleSwitch(
-              labels: semesters!,
-              onToggled: (index, semester) {
-                setState(() {
-                  selectedSemester = semester;
-                });
-              }),
-          const SizedBox(
-            height: 8,
-          ),
-          Expanded(
-            child: CourseList(courses: semesterCourses, program: program!),
-          ),
-        ],
-      ),
-    );
+    final value = ref.watch(coursesProvider);
+    Widget content = value.when(
+        loading: () => const Center(
+              child: CircularProgressIndicator(),
+            ),
+        error: (error, stackTrace) {
+          Constants().showMessage(context, error.toString());
+          return const Center(
+            child: Text('Oops'),
+          );
+        },
+        data: (data) {
+          courses = data;
+          yearsOfStudy = _getYears();
+          List<Course> filteredCourses = _getFilteredCourses();
+
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+            child: FormBuilder(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FormBuilderDropdown(
+                          decoration: Constants()
+                              .dropDownInputDecoration(context, 'Year', null),
+                          name: 'year',
+                          items: Constants().getDropDownMenuItems(
+                            _getYears(),
+                          ),
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              selectedYearOfStudy = value;
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(
+                        child: FormBuilderDropdown(
+                          validator: FormBuilderValidators.required(),
+                          decoration: Constants().dropDownInputDecoration(
+                              context, 'Semester', null),
+                          name: 'semester',
+                          items: Constants()
+                              .getDropDownMenuItems(Constants().semesters),
+                          onChanged: (value) {
+                            if (value == null) return;
+                            setState(() {
+                              selectedSemester = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child:
+                        CourseList(courses: filteredCourses, program: program!),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+
     return Scaffold(
       appBar: AppBar(
         title: Text('${widget.program.programCode} Courses'),
@@ -99,58 +141,56 @@ class _ProgramDetailsScreenState extends State<ProgramDetailsScreen> {
     List<String> years = [];
     final duration = int.parse(program!.duration[0]);
     for (var i = 0; i < duration; i++) {
-      years.add('Year ${i + 1}');
+      years.add((i + 1).toString());
     }
     print(years.length);
     return years;
   }
 
-  List<String> _getSemesters() {
-    List<String> semesters = [];
-    for (var semester in Constants().semesters) {
-      semesters.add('Semester ${semester == 'One' ? '1' : '2'}');
-    }
-    return semesters;
-  }
+  List<Course> _getFilteredCourses() {
+    List<Course> filteredCourses = [];
 
-  void _getCourses() async {
-    List<Course> foundCourses = [];
-    try {
-      final coursesSnapshot =
-          await FirebaseDatabase.instance.ref().child('courses').get();
-      for (final course in coursesSnapshot.children) {
-        final retrievedCourse = Course.fromSnapshot(course);
-        if (retrievedCourse.campus == program!.campus &&
-            retrievedCourse.program == program!.programCode) {
-          foundCourses.add(retrievedCourse);
+    print('Was called');
+
+    if (courses.isNotEmpty) {
+      final List<Course> foundCourses = [];
+      for (final course in courses) {
+        print(selectedYearOfStudy);
+        if (selectedYearOfStudy == null) {
+          print(program!.toMap());
+          if (course.program == program!.programCode &&
+              course.campus == program!.campus) {
+            print(course.title);
+            foundCourses.add(course);
+            print(course);
+          }
+        } else {
+          if (selectedSemester == null) {
+            print(selectedYearOfStudy);
+            if (course.campus == program!.campus &&
+                course.program == program!.programCode &&
+                course.year == selectedYearOfStudy) {
+              foundCourses.add(course);
+            }
+          } else {
+            if (course.campus == program!.campus &&
+                course.program == program!.programCode &&
+                course.year == selectedYearOfStudy &&
+                course.semester == selectedSemester) {
+              foundCourses.add(course);
+            }
+          }
         }
       }
-      setState(() {
-        courses = foundCourses;
-        print(courses.length);
-        isLoading = false;
-      });
-    } on FirebaseException catch (e) {
-      setState(() {
-        isLoading = false;
-        Constants().showMessage(context, e.message.toString());
-      });
-      return;
+
+      filteredCourses = foundCourses;
     }
+    return filteredCourses;
   }
 
-  List<Course> _getSemesterCourses() {
-    List<Course> foundCourses = [];
-    final year = selectedYearOfStudy![selectedYearOfStudy!.length - 1];
-    final semester =
-        selectedSemester![selectedSemester!.length - 1] == '1' ? 'One' : 'Two';
-
-    for (final course in courses) {
-      if (course.semester == semester && course.year == year) {
-        foundCourses.add(course);
-      }
-    }
-
-    return foundCourses;
+  @override
+  void dispose() {
+    super.dispose();
+    form.currentState?.dispose();
   }
 }

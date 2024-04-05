@@ -1,20 +1,42 @@
+import 'dart:async';
+
 import 'package:emim/models/program.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ProgramsNotifier extends StateNotifier<List<Program>> {
-  ProgramsNotifier() : super([]);
+final programsRef = FirebaseDatabase.instance.ref().child('programs');
 
-  void addProgram(Program program) {
-    final programExist = state.contains(program);
-
-    if (programExist) {
-      state = state.where((e) => e.programCode != program.programCode).toList();
-    } else {
-      state = [...state, program];
+class ProgramsNotifier extends AutoDisposeAsyncNotifier<List<Program>> {
+  @override
+  FutureOr<List<Program>> build() async {
+    await for (final event in programsRef.onValue) {
+      List<Program> foundPrograms = [];
+      for (final snapshot in event.snapshot.children) {
+        final retrivedProgram = Program.fromSnapshot(snapshot);
+        foundPrograms.add(retrivedProgram);
+      }
+      return foundPrograms;
     }
+    return [];
   }
+
+  // Future<String?>? addProgram(Map<String, dynamic> newProgram) async {
+  //   final id = programsRef.push().key;
+  //   try {
+  //     if (id != null) {
+  //       newProgram.addAll({'programId': id});
+  //       await programsRef.child(id).set(newProgram).whenComplete(() {
+  //         ref.invalidateSelf();
+  //         return null;
+  //       });
+  //     }
+  //   } on FirebaseException catch (e) {
+  //     return e.message;
+  //   }
+  // }
 }
 
-final programsProvider = StateNotifierProvider<ProgramsNotifier, List<Program>>(
-  (ref) => ProgramsNotifier(),
-);
+final programsProvider =
+    AsyncNotifierProvider.autoDispose<ProgramsNotifier, List<Program>>(
+        ProgramsNotifier.new);

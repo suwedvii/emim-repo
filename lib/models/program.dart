@@ -85,6 +85,21 @@ class Program {
   factory Program.fromJson(String source) =>
       Program.fromMap(json.decode(source) as Map<String, dynamic>);
 
+  Future<Program?> getProgramByCode(String programCode) async {
+    final programRef = FirebaseDatabase.instance.ref().child('programs');
+    await for (final event in programRef.onValue) {
+      Program program = Program();
+      for (final snapshot in event.snapshot.children) {
+        final retrievedProgram = Program.fromSnapshot(snapshot);
+        if (retrievedProgram.programCode == programCode) {
+          program = retrievedProgram;
+        }
+      }
+      return program;
+    }
+    return null;
+  }
+
   factory Program.fromSnapshot(DataSnapshot programSnapshot) {
     return Program(
       programId: programSnapshot.child('programId').value.toString(),

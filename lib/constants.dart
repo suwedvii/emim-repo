@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
 // import 'package:quickalert/quickalert.dart';
 
@@ -7,7 +8,7 @@ class Constants {
 
   List<String> courseCategories = ['Core', 'Selective'];
 
-  List<String> semesters = ['One', 'Two'];
+  List<String> semesters = ['1', '2'];
 
   List<String> years = ['1', '2', '3', '4', '5'];
 
@@ -38,21 +39,42 @@ class Constants {
     return TimeOfDay.fromDateTime(format.parse(tod));
   }
 
-  // void showQuickAlert(BuildContext context, QuickAlertType type, String title, String text, String cancelBtnText, bool showConfirmBtn) {
-  //   QuickAlert.show(
-  //     context: context,
-  //     type: type,
-  //     title: title,
-  //     borderRadius: 8,
-  //     text: text,
-  //     showCancelBtn: ,
-  //     cancelBtnText: cancelBtnText,
-  //     onCancelBtnTap: (){Navigator.of(context).pop();},
-  //     showConfirmBtn: sh,
-  //     confirmBtnText: ,
-  //     confirmBtnTextStyle: ,
-  //     onConfirmBtnTap: ,
-  //     barrierDismissible: false,
-  //     disableBackBtn: false);
-  // }
+  InputDecoration dropDownInputDecoration(
+      BuildContext context, String? label, EdgeInsets? padding) {
+    return InputDecoration(
+      hintText: label,
+      alignLabelWithHint: true,
+      contentPadding:
+          padding ?? const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+      filled: true,
+      fillColor: Theme.of(context).colorScheme.onPrimary,
+      labelText: label,
+      border: const OutlineInputBorder(
+        borderSide: BorderSide(width: 5, style: BorderStyle.solid),
+        borderRadius: BorderRadius.all(
+          Radius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  List<DropdownMenuItem> getDropDownMenuItems(List<String> items) {
+    return items
+        .map(
+          (item) => DropdownMenuItem(
+            value: item,
+            child: Text(item),
+          ),
+        )
+        .toList();
+  }
+
+  List<FormBuilderChipOption<String>> getFormBuilderChipOptions(
+      List<String> items) {
+    return items
+        .map(
+          (e) => FormBuilderChipOption(value: e),
+        )
+        .toList();
+  }
 }

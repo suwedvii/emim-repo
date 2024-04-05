@@ -1,16 +1,17 @@
+import 'package:emim/constants.dart';
 import 'package:flutter/material.dart';
 
 class CustomDropdown extends StatefulWidget {
   const CustomDropdown({
     super.key,
     required this.items,
-    required this.value,
+    this.value,
     required this.onChanged,
     required this.label,
   });
 
   final List<String> items;
-  final String value;
+  final String? value;
   final Function(String? value) onChanged;
   final String label;
 
@@ -19,25 +20,22 @@ class CustomDropdown extends StatefulWidget {
 }
 
 class _CustomDropdownState extends State<CustomDropdown> {
-  List<String>? items;
-
   @override
   void setState(VoidCallback fn) {
     super.setState(fn);
-    items = ['Select ${widget.label}', ...widget.items];
   }
 
   @override
   Widget build(BuildContext context) {
+    final List<String> items = ['Select ${widget.label}', ...widget.items];
     return SizedBox(
       height: 55,
       child: DropdownButtonFormField<String>(
-        isExpanded: true,
-        elevation: 8,
+        // elevation: 8,
         itemHeight: 50,
         style: Theme.of(context).textTheme.bodyMedium,
-        value: widget.value,
-        items: widget.items.map((String item) {
+        value: widget.value ?? items[0],
+        items: items.map((String item) {
           return DropdownMenuItem<String>(
             value: item,
             child: Text(item.toUpperCase()),
@@ -57,12 +55,8 @@ class _CustomDropdownState extends State<CustomDropdown> {
           }
           return null;
         },
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.onPrimary,
-          labelText: widget.label,
-          border: const OutlineInputBorder(),
-        ),
+        decoration:
+            Constants().dropDownInputDecoration(context, widget.label, null),
       ),
     );
   }

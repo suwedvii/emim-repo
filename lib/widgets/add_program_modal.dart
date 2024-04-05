@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:emim/constants.dart';
 import 'package:emim/models/program.dart';
-import 'package:emim/widgets/custom_drop_down_button.dart';
-import 'package:emim/widgets/custom_text_form_field.dart';
-import 'package:emim/widgets/profile/my_toggle_switch.dart';
-// import 'package:emim/providers/faculties_provider.dart';
-// import 'package:emim/widgets/drop_down_button.dart';
+import 'package:emim/providers/programs_provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:http/http.dart' as http;
 
 class AddProgramModal extends ConsumerStatefulWidget {
@@ -21,14 +21,8 @@ class AddProgramModal extends ConsumerStatefulWidget {
 
 class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   TextEditingController? programNameController;
-  final formKey = GlobalKey<FormState>();
-  String programDuration = durations[0];
-  String programCode = '';
-  String programName = '';
-  String description = '';
-  String selectedFaculty = '';
-  String semesters = '';
-  String selecetedCampus = Constants().campuses[0];
+  String? error;
+  final formKey = GlobalKey<FormBuilderState>();
 
   List<String> fetchedFaculties = ['Select Faculty'];
 
@@ -37,157 +31,186 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
   @override
   Widget build(BuildContext context) {
     double keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
+    final List<Program>? programsData = ref.watch(programsProvider).valueOrNull;
 
     return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, keyboardSpace + 30),
-      child: Form(
+      child: FormBuilder(
         key: formKey,
-        child: isLoading
-            ? const Center(
-                child: LinearProgressIndicator(),
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Add Program',
+              style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            // TextField(
+            FormBuilderTextField(
+              valueTransformer: (value) => value.toString().trim(),
+              enableSuggestions: true,
+              decoration: Constants().dropDownInputDecoration(
+                context,
+                'Program Name',
+                null,
+              ),
+              autovalidateMode: AutovalidateMode.disabled,
+              name: 'program_name',
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(5),
+              ]),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderTextField(
+              valueTransformer: (value) => value.toString().trim(),
+              enableSuggestions: true,
+              decoration: Constants().dropDownInputDecoration(
+                context,
+                'Program Code',
+                null,
+              ),
+              autovalidateMode: AutovalidateMode.disabled,
+              name: 'program_code',
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(4),
+              ]),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderTextField(
+              keyboardType: TextInputType.number,
+              decoration: Constants().dropDownInputDecoration(
+                context,
+                'Semesters',
+                null,
+              ),
+              autovalidateMode: AutovalidateMode.disabled,
+              name: 'semesters',
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.integer(),
+              ]),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderTextField(
+              valueTransformer: (value) => value.toString().trim(),
+              enableSuggestions: true,
+              decoration: Constants().dropDownInputDecoration(
+                context,
+                'Description',
+                null,
+              ),
+              autovalidateMode: AutovalidateMode.disabled,
+              name: 'description',
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.minLength(5),
+              ]),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            // MyDropDownButton(items: facuties, label: 'Faculty'),
+            FormBuilderDropdown(
+              validator: FormBuilderValidators.required(),
+              decoration:
+                  Constants().dropDownInputDecoration(context, 'Faculty', null),
+              name: 'faculty',
+              items: Constants().getDropDownMenuItems(fetchedFaculties),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderDropdown(
+              validator: FormBuilderValidators.required(),
+              decoration: Constants()
+                  .dropDownInputDecoration(context, 'Duration', null),
+              name: 'duration',
+              items: Constants().getDropDownMenuItems(durations),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderChoiceChip(
+              validator: FormBuilderValidators.required(),
+              alignment: WrapAlignment.spaceBetween,
+              decoration:
+                  Constants().dropDownInputDecoration(context, 'Campus', null),
+              name: 'campus',
+              options: Constants()
+                  .campuses
+                  .map(
+                    (e) => FormBuilderChipOption(value: e),
+                  )
+                  .toList(),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            if (error != null)
+              Column(
                 children: [
                   Text(
-                    'Add Program',
-                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                          fontWeight: FontWeight.bold,
+                    'Error: $error',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                          color: Theme.of(context).colorScheme.error,
                         ),
                   ),
                   const SizedBox(
                     height: 8,
                   ),
-                  // TextField(
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            value.trim().length < 8) {
-                          return 'Please enter a valid Program Name with Characters not less than 8';
-                        }
-
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        programName = value!;
-                      },
-                      label: 'Program Name'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a valid Program Code with Characters not less than 1';
-                        }
-
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        programCode = value!;
-                      },
-                      label: 'Program Code'),
-                  const SizedBox(height: 8),
-                  MyTextFormFiled(
-                      inputType: TextInputType.number,
-                      onValidate: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            int.parse(value.trim().toString()) == 0) {
-                          return 'Please enter a valid number of semesters for this program';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        semesters = value!;
-                      },
-                      label: 'Semesters'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyTextFormFiled(
-                      onValidate: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            value.trim().length < 15) {
-                          return 'Please enter a valid program description with Characters not less than 15';
-                        }
-
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        description = value!;
-                      },
-                      label: 'Description'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  // MyDropDownButton(items: facuties, label: 'Faculty'),
-                  CustomDropdown(
-                      items: fetchedFaculties,
-                      value: fetchedFaculties.isEmpty
-                          ? 'No Falcuties'
-                          : fetchedFaculties[0],
-                      onChanged: (value) {
-                        selectedFaculty = value!;
-                      },
-                      label: 'Falcuty'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  CustomDropdown(
-                      items: durations,
-                      value: fetchedFaculties.isEmpty
-                          ? 'No Durations'
-                          : durations[0],
-                      onChanged: (value) {
-                        programDuration = value!;
-                      },
-                      label: 'Duration'),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyToggleSwitch(
-                      labels: Constants().campuses,
-                      onToggled: (index, campus) {
-                        selecetedCampus = campus;
-                      }),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          formKey.currentState!.reset();
-                        },
-                        child: const Text('Reset'),
-                      ),
-                      const SizedBox(
-                        width: 2,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Cancel'),
-                      ),
-                      const SizedBox(
-                        width: 6,
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _addProgram(context);
-                        },
-                        child: const Text('Add Program'),
-                      )
-                    ],
-                  )
                 ],
               ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    formKey.currentState!.reset();
+                  },
+                  child: const Text('Reset'),
+                ),
+                const SizedBox(
+                  width: 2,
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                const SizedBox(
+                  width: 6,
+                ),
+                if (!isLoading)
+                  ElevatedButton(
+                    onPressed: () {
+                      _addProgram(programsData);
+                    },
+                    child: const Text('Add Program'),
+                  ),
+                if (isLoading)
+                  const SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(),
+                  )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -209,52 +232,68 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
       fetchedFaculties = loadedFaculties;
       isLoading = false;
     });
-
-    print(fetchedFaculties);
   }
 
-  void _addProgram(BuildContext context) async {
+  void _addProgram(List<Program>? programData) async {
+    final programsRef = FirebaseDatabase.instance.ref().child('programs');
+
     if (formKey.currentState!.validate()) {
+      setState(() {
+        error = null;
+        isLoading = true;
+      });
       formKey.currentState!.save();
-
-      final newProgram = Program(
-              description: description,
-              faculty: selectedFaculty,
-              campus: selecetedCampus,
-              programCode: programCode,
-              programName: programName,
-              semesters: semesters,
-              duration: programDuration)
-          .toJson();
-
-      final currentContext = context;
-
-      final url =
-          Uri.https('emimbacke-default-rtdb.firebaseio.com', 'programs.json');
+      final data = formKey.currentState!.value;
+      final programCode = data['program_code'].toString();
+      final campus = data['campus'].toString();
 
       try {
-        final response = await http.post(
-          url,
-          headers: {'Content-Type': 'application/json'},
-          body: newProgram,
-        );
+        if (programNotExist(programData, programCode, campus)) {
+          final programId = programsRef.push().key;
+          if (programId != null) {
+            final newProgram = Program(
+              programId: programId,
+              programCode: programCode,
+              programName: data['program_name'].toString(),
+              description: data['description'].toString(),
+              faculty: data['faculty'].toString(),
+              duration: data['duration'].toString(),
+              semesters: data['semesters'].toString(),
+              campus: campus,
+            ).toMap();
 
-        if (currentContext.mounted) {
-          Navigator.of(context).pop<Program>(
-            Program(
-                programId: response.body,
-                description: description,
-                duration: programDuration,
-                faculty: selectedFaculty,
-                programCode: programCode,
-                programName: programName,
-                semesters: semesters),
-          );
+            await programsRef.child(programId).set(newProgram).whenComplete(() {
+              Navigator.of(context).pop();
+            });
+          }
         }
-      } catch (error) {
-        print(error);
+      } on FirebaseException catch (e) {
+        setState(() {
+          error = e.message;
+          isLoading = false;
+        });
       }
     }
+  }
+
+  bool programNotExist(
+    List<Program>? data,
+    String code,
+    String campus,
+  ) {
+    if (data != null) {
+      for (final program in data) {
+        if (program.campus == campus) {
+          setState(() {
+            isLoading = false;
+            error = 'Program already exist';
+          });
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 
   @override
@@ -266,8 +305,10 @@ class _AddProgramModalState extends ConsumerState<AddProgramModal> {
 
   @override
   void initState() {
-    super.initState();
-    _loadFaculties();
+    if (mounted) {
+      super.initState();
+      _loadFaculties();
+    }
   }
 
   @override

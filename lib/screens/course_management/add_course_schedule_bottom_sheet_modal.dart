@@ -1,7 +1,7 @@
 import 'package:emim/constants.dart';
 import 'package:emim/models/building.dart';
 import 'package:emim/models/course.dart';
-import 'package:emim/models/schedule.dart';
+import 'package:emim/models/course_schedule.dart';
 import 'package:emim/widgets/custom_drop_down_button.dart';
 import 'package:emim/widgets/custom_time_holder.dart';
 import 'package:emim/widgets/my_date_holder.dart';
@@ -288,9 +288,16 @@ class _AddCourseScheduleBottomSheetModalState
       print(selectedOccurance.toLowerCase());
 
       if (selectedOccurance.toLowerCase() == occurances[0].toLowerCase()) {
-        schedule = Schedule(
+        schedule = CourseSchedule(
+                campus: course!.campus,
+                program: course!.program,
+                code: course!.code,
+                title: course!.title,
+                instructor: course!.instructor,
+                year: course!.year,
+                semester: course!.semester,
+                category: course!.category,
                 scheduleID: scheduleID,
-                course: course!.courseCode,
                 bulding: selectedBuilding,
                 room: selectedRoom,
                 date: selectedDate,
@@ -298,9 +305,16 @@ class _AddCourseScheduleBottomSheetModalState
                 endTime: endTime)
             .toMap();
       } else {
-        schedule = Schedule(
+        schedule = CourseSchedule(
+                campus: course!.campus,
+                program: course!.program,
+                title: course!.title,
+                code: course!.code,
+                instructor: course!.instructor,
+                year: course!.year,
+                semester: course!.semester,
+                category: course!.category,
                 scheduleID: scheduleID,
-                course: course!.courseCode,
                 bulding: selectedBuilding,
                 room: selectedRoom,
                 dayOfWeek: selectedDayOfWeek,
@@ -314,6 +328,7 @@ class _AddCourseScheduleBottomSheetModalState
         print('Add function called');
         print(schedule);
         await schedulesRef.child(scheduleID).set(schedule).whenComplete(() {
+          Navigator.of(context).pop();
           // QuickAlert.show(context: context, type: QuickAlertType.success);
         }).onError((error, stackTrace) {
           print(stackTrace);

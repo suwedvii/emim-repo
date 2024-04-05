@@ -35,13 +35,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   google_fonts: ^6.1.0
-  flutter_riverpod: ^2.4.9
+  flutter_riverpod: ^2.5.1
   flutter_speed_dial: ^7.0.0
   http: ^1.1.2
   transparent_image: ^2.0.1
   image_picker: ^1.0.7
   date_format: ^2.0.7
-  intl: ^0.19.0
+  intl: ^0.18.1
   file_picker: ^6.1.1
   carousel_slider: ^4.2.1
   smooth_page_indicator: ^1.1.0
@@ -54,6 +54,8 @@ dependencies:
   firebase_database: ^10.4.5
   toggle_switch: ^2.1.0
   quickalert: ^1.1.0
+  flutter_form_builder: ^9.2.1
+  form_builder_validators: ^9.1.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +68,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
   json_serializable: ^6.7.1
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.10
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -2,14 +2,17 @@ import 'package:emim/constants.dart';
 import 'package:emim/models/course.dart';
 import 'package:emim/models/my_user.dart';
 import 'package:emim/models/program.dart';
-import 'package:emim/widgets/custom_drop_down_button.dart';
-import 'package:emim/widgets/custom_text_form_field.dart';
-import 'package:emim/widgets/profile/my_toggle_switch.dart';
+import 'package:emim/providers/courses_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
-class AddCourseBottomSheetModal extends StatefulWidget {
+class AddCourseBottomSheetModal extends ConsumerStatefulWidget {
   const AddCourseBottomSheetModal(
       {super.key, required this.program, this.course});
 
@@ -17,23 +20,17 @@ class AddCourseBottomSheetModal extends StatefulWidget {
   final Course? course;
 
   @override
-  State<AddCourseBottomSheetModal> createState() =>
+  ConsumerState<AddCourseBottomSheetModal> createState() =>
       _AddCourseBottomSheetModalState();
 }
 
-class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
-  final form = GlobalKey<FormState>();
+class _AddCourseBottomSheetModalState
+    extends ConsumerState<AddCourseBottomSheetModal> {
+  final form = GlobalKey<FormBuilderState>();
   Course? course;
+  Program? program;
   bool isLoading = true;
   String? error;
-  String semester = '';
-  String selectedCategory = Constants().courseCategories[0];
-  String selectedCampus = Constants().campuses[0];
-  String selectedYear = Constants().years[0];
-  String selectedSemester = Constants().semesters[0];
-  String selectedProgram = '';
-  String selectedInstructor = '';
-  String enteredCoourseName = '';
   List<String> programs = [];
   List<String> instructors = [];
   List<Course> courses = [];
@@ -43,219 +40,198 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
     super.initState();
     _getPrograms();
     _getInstructors();
-    _getCourses();
     course = widget.course;
+    program = widget.program;
   }
 
   @override
   void dispose() {
-    super.dispose();
-    form.currentState?.dispose();
+    if (mounted) {
+      super.dispose();
+      form.currentState?.dispose();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final courses = ref.watch(coursesProvider).valueOrNull;
+
+    for (var element in courses!) {
+      print(element.title);
+    }
+
     final keyboardSpace = MediaQuery.of(context).viewInsets.bottom;
     return Container(
       padding: EdgeInsets.fromLTRB(14, 16, 14, 8 + keyboardSpace),
-      child: Form(
+      child: FormBuilder(
         key: form,
         child: SingleChildScrollView(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final maxWidth = constraints.maxWidth;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${course != null ? 'UPDATE' : 'ADD'} COURSE',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(fontWeight: FontWeight.bold),
+            child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '${course != null ? 'UPDATE' : 'ADD'} COURSE',
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge!
+                  .copyWith(fontWeight: FontWeight.bold),
+            ),
+            const Divider(
+              height: 8,
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderTextField(
+              name: 'title',
+              decoration:
+                  Constants().dropDownInputDecoration(context, 'Title', null),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.min(8)
+              ]),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderDropdown(
+              name: 'program',
+              items: Constants().getDropDownMenuItems(programs),
+              decoration:
+                  Constants().dropDownInputDecoration(context, 'Program', null),
+              validator: FormBuilderValidators.required(),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            FormBuilderDropdown(
+              name: 'instructor',
+              items: Constants().getDropDownMenuItems(instructors),
+              decoration: Constants()
+                  .dropDownInputDecoration(context, 'Instructor', null),
+              validator: FormBuilderValidators.required(),
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: FormBuilderDropdown(
+                    name: 'year',
+                    items: Constants().getDropDownMenuItems(Constants().years),
+                    validator: FormBuilderValidators.required(),
+                    decoration: Constants()
+                        .dropDownInputDecoration(context, 'Year', null),
                   ),
-                  const Divider(),
-                  const SizedBox(
-                    height: 8,
+                ),
+                const SizedBox(
+                  width: 6,
+                ),
+                Expanded(
+                  child: FormBuilderDropdown(
+                    name: 'semester',
+                    items:
+                        Constants().getDropDownMenuItems(Constants().semesters),
+                    validator: FormBuilderValidators.required(),
+                    decoration: Constants()
+                        .dropDownInputDecoration(context, 'Semester', null),
                   ),
-                  MyTextFormFiled(
-                      initialValue: course?.courseName,
-                      onValidate: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            value.trim().length < 5) {
-                          return 'Please enter a valid course name';
-                        }
-                        return null;
-                      },
-                      onValueSaved: (value) {
-                        enteredCoourseName = value!;
-                      },
-                      label: 'Course Name'),
-                  const SizedBox(
-                    height: 8,
+                ),
+                const SizedBox(
+                  width: 6,
+                ),
+                Expanded(
+                  child: FormBuilderDropdown(
+                    name: 'category',
+                    items: Constants()
+                        .getDropDownMenuItems(Constants().courseCategories),
+                    validator: FormBuilderValidators.required(),
+                    decoration: Constants()
+                        .dropDownInputDecoration(context, 'Category', null),
                   ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (!isLoading)
-                    CustomDropdown(
-                      items: programs,
-                      value: programs.isEmpty ? 'No Programs' : programs[0],
-                      label: 'Program',
-                      onChanged: (String? value) {
-                        if (value == null) return;
-                        setState(() {
-                          selectedProgram = value;
-                        });
-                      },
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 8,
+            ),
+            const Divider(),
+            const SizedBox(
+              height: 8,
+            ),
+            if (error != null)
+              Text(
+                error!,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.bold,
                     ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (!isLoading)
-                    CustomDropdown(
-                      items: instructors,
-                      label: 'Instructor',
-                      value:
-                          instructors.isEmpty ? 'No Programs' : instructors[0],
-                      onChanged: (String? value) {
-                        if (value == null) return;
-                        setState(() {
-                          selectedInstructor = value;
-                        });
-                      },
-                    ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyToggleSwitch(
-                      title: 'Course Category',
-                      labels: Constants().courseCategories,
-                      onToggled: (index, item) {
-                        selectedCategory = item;
-                      }),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Row(children: [
-                    Expanded(
-                      child: MyToggleSwitch(
-                          maxWidth: maxWidth,
-                          title: 'Campus',
-                          labels: Constants().campuses,
-                          onToggled: (index, campus) {
-                            selectedCampus = campus;
-                          }),
-                    ),
-                    const SizedBox(
-                      width: 6,
-                    ),
-                    Expanded(
-                      child: MyToggleSwitch(
-                          maxWidth: maxWidth,
-                          title: 'Semester',
-                          labels: Constants().semesters,
-                          onToggled: (index, semester) {
-                            selectedSemester = semester;
-                          }),
-                    )
-                  ]),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  MyToggleSwitch(
-                      title: 'Year of Study',
-                      labels: Constants().years,
-                      onToggled: (index, year) {
-                        selectedYear = year;
-                      }),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  const Divider(),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  if (error != null)
-                    Text(
-                      error!,
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.bold,
-                          ),
-                    ),
-                  Row(
-                    children: [
-                      const Spacer(),
-                      TextButton(
-                          onPressed: () {
-                            form.currentState!.reset();
-                          },
-                          child: const Text('Reset')),
-                      ElevatedButton(
-                        onPressed: isLoading ? null : _addCourse,
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 16,
-                                width: 16,
-                                child: CircularProgressIndicator(),
-                              )
-                            : const Text('Add Course'),
-                      ),
-                    ],
-                  )
-                ],
-              );
-            },
-          ),
-        ),
+              ),
+            Row(
+              children: [
+                const Spacer(),
+                TextButton(
+                    onPressed: () {
+                      form.currentState!.reset();
+                    },
+                    child: const Text('Reset')),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      :
+                      // _addCourse,
+                      () {
+                          _addCourse(courses, ref);
+                        },
+                  child: isLoading
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(),
+                        )
+                      : const Text('Add Course'),
+                ),
+              ],
+            )
+          ],
+        )),
       ),
     );
   }
 
-  void _addCourse() async {
+  void _addCourse(List<Course> existingCources, WidgetRef ref) async {
+    final coursesRef = FirebaseDatabase.instance.ref().child('courses');
     setState(() {
       isLoading = true;
     });
     if (form.currentState!.validate()) {
       form.currentState!.save();
 
-      try {
-        final coursesRef = FirebaseDatabase.instance.ref().child('courses');
+      final newCourse = Course.fromMap(
+          {'code': '', 'campus': program!.campus, ...form.currentState!.value});
 
-        if (_getCourseCode() != null) {
-          final courseCode = _getCourseCode();
-          await coursesRef
-              .child(courseCode!)
-              .set(Course(
-                courseName: enteredCoourseName,
-                courseCode: courseCode,
-                program: selectedProgram,
-                campus: selectedCampus,
-                category: selectedCategory,
-                instructor: selectedInstructor,
-                semester: selectedSemester,
-                year: selectedYear,
-              ).toMap())
-              .whenComplete(() {
-            setState(() {
-              isLoading = false;
-              Navigator.of(context).pop();
-            });
+      for (final course in existingCources) {
+        if (course.campus == newCourse.campus &&
+            course.program == newCourse.program &&
+            course.title == newCourse.title) {
+          setState(() {
+            error = 'Course already exist';
+            isLoading = false;
+            return;
           });
         } else {
-          setState(() {
-            error = 'Course already exist!!';
-            isLoading = false;
+          newCourse.code = _getCode(newCourse, existingCources);
+
+          await coursesRef
+              .child(newCourse.code)
+              .set(newCourse.toMap())
+              .whenComplete(() {
+            if (mounted) {
+              Navigator.of(context).pop();
+            }
           });
         }
-      } on FirebaseException catch (e) {
-        setState(() {
-          isLoading = false;
-          error = e.message.toString();
-          return;
-        });
       }
     }
   }
@@ -309,44 +285,24 @@ class _AddCourseBottomSheetModalState extends State<AddCourseBottomSheetModal> {
     }
   }
 
-  String? _getCourseCode() {
-    final year = selectedYear;
-    final semester = selectedSemester.toLowerCase() == 'one' ? '1' : '2';
-    int numberOfCourses = 0;
-
-    for (final course in courses) {
-      if (course.courseName == enteredCoourseName &&
-          course.campus == selectedCampus &&
-          course.program == selectedProgram) {
-        return null;
-      } else if (course.campus == selectedCampus &&
-          course.year == selectedYear &&
-          course.semester == selectedSemester &&
-          course.program == selectedProgram &&
-          course.category == selectedCategory) {
-        numberOfCourses += 1;
-      }
-    }
-    return '$selectedProgram$year$semester${(numberOfCourses + 1).toString().padLeft(2, '0')}';
-  }
-
-  void _getCourses() async {
-    List<Course> foundCourses = [];
-    try {
-      final cousresSnapshot =
-          await FirebaseDatabase.instance.ref().child('courses').get();
-      for (final course in cousresSnapshot.children) {
-        foundCourses.add(Course.fromSnapshot(course));
-      }
-      setState(() {
-        courses = foundCourses;
-      });
-    } on FirebaseException catch (e) {
-      setState(() {
-        isLoading = false;
-        error = e.message.toString();
-        return;
-      });
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
     }
   }
+}
+
+String _getCode(Course newCourse, List<Course> existingCourses) {
+  int numOfCourses = 0;
+
+  for (final course in existingCourses) {
+    if (course.campus == newCourse.campus &&
+        course.program == newCourse.program &&
+        course.year == newCourse.year &&
+        course.semester == newCourse.semester) {
+      numOfCourses += 1;
+    }
+  }
+  return '${newCourse.program}${newCourse.year}${newCourse.semester}${(numOfCourses + 1).toString().padLeft(2, '0')}';
 }

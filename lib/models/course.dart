@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:firebase_database/firebase_database.dart';
 
 class Course {
-  String courseCode;
+  String code;
   String campus;
-  String courseName;
+  String title;
   String year;
   String semester;
   String program;
@@ -14,9 +14,9 @@ class Course {
   String category;
 
   Course({
-    this.courseCode = 'N/A',
+    this.code = 'N/A',
     this.campus = 'N/A',
-    this.courseName = 'N/A',
+    this.title = 'N/A',
     this.year = 'N/A',
     this.semester = 'N/A',
     this.program = 'N/A',
@@ -26,9 +26,9 @@ class Course {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
-      'courseCode': courseCode,
+      'code': code,
       'campus': campus,
-      'courseName': courseName,
+      'title': title,
       'year': year,
       'semester': semester,
       'program': program,
@@ -39,9 +39,9 @@ class Course {
 
   factory Course.fromMap(Map<String, dynamic> map) {
     return Course(
-      courseCode: map['courseCode'] as String,
+      code: map['code'] as String,
       campus: map['campus'] as String,
-      courseName: map['courseName'] as String,
+      title: map['title'] as String,
       year: map['year'] as String,
       semester: map['semester'] as String,
       program: map['program'] as String,
@@ -54,9 +54,9 @@ class Course {
 
   factory Course.fromSnapshot(DataSnapshot courseSnapshot) {
     return Course(
-      courseCode: courseSnapshot.child('courseCode').value.toString(),
+      code: courseSnapshot.child('code').value.toString(),
       campus: courseSnapshot.child('campus').value.toString(),
-      courseName: courseSnapshot.child('courseName').value.toString(),
+      title: courseSnapshot.child('title').value.toString(),
       year: courseSnapshot.child('year').value.toString(),
       semester: courseSnapshot.child('semester').value.toString(),
       program: courseSnapshot.child('program').value.toString(),
@@ -67,4 +67,18 @@ class Course {
 
   factory Course.fromJson(String source) =>
       Course.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  Future<List<Course>> getCourses() async {
+    final coursesRef = FirebaseDatabase.instance.ref().child('courses');
+
+    await for (final event in coursesRef.onValue) {
+      List<Course> foundCourses = [];
+      for (final snaposhot in event.snapshot.children) {
+        final retrievedCourse = Course.fromSnapshot(snaposhot);
+        foundCourses.add(retrievedCourse);
+      }
+      return foundCourses;
+    }
+    return [];
+  }
 }

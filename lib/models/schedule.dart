@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:firebase_database/firebase_database.dart';
+
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 class Schedule {
   String? scheduleID;
@@ -72,6 +74,19 @@ class Schedule {
   }
 
   String toJson() => json.encode(toMap());
+
+  factory Schedule.fromSnashot(DataSnapshot snapshot) {
+    return Schedule(
+      scheduleID: snapshot.child('scheduleID').value.toString(),
+      bulding: snapshot.child('bulding').value.toString(),
+      room: snapshot.child('room').value.toString(),
+      course: snapshot.child('course').value.toString(),
+      date: snapshot.child('date').value.toString(),
+      dayOfWeek: snapshot.child('dayOfWeek').value.toString(),
+      startTime: snapshot.child('startTime').value.toString(),
+      endTime: snapshot.child('endTime').value.toString(),
+    );
+  }
 
   factory Schedule.fromJson(String source) =>
       Schedule.fromMap(json.decode(source) as Map<String, dynamic>);

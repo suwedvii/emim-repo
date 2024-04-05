@@ -1,22 +1,18 @@
 import 'package:emim/models/my_user.dart';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:emim/providers/users_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserNotifier extends StateNotifier<MyUser> {
-  UserNotifier() : super(MyUser());
-
-  void getUser(String uid) async {
-    FirebaseDatabase.instance.ref().child('users').onValue.listen((event) {
-      for (final user in event.snapshot.children) {
-        final retrievedUser = MyUser().fromSnapshot(user);
-        if (retrievedUser.uid == uid) {
-          state = retrievedUser;
-        }
-      }
-    });
+final userProvider =
+    FutureProvider.autoDispose.family<MyUser, String>((ref, uid) async {
+  final users = ref.watch(usersProvider);
+  var foundUser = MyUser();
+  for (final user in users.value!) {
+    if (user.uid == uid) {
+      foundUser = user;
+    }
   }
-}
 
-final userProvider = StateNotifierProvider<UserNotifier, MyUser>(
-  (ref) => UserNotifier(),
-);
+  print(foundUser.firstName);
+
+  return foundUser;
+});

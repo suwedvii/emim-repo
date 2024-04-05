@@ -1,19 +1,20 @@
 import 'package:emim/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Settings extends StatefulWidget {
+class Settings extends ConsumerStatefulWidget {
   const Settings({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
   @override
-  State<Settings> createState() {
+  ConsumerState<Settings> createState() {
     return _SettingsState();
   }
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsState extends ConsumerState<Settings> {
   bool isLoggedIn = true;
 
   void _logOutUser() {
@@ -30,10 +31,17 @@ class _SettingsState extends State<Settings> {
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-              Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (ctx) => const App()));
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut().whenComplete(() {
+                Navigator.of(ctx).pop();
+                if (mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (ctx) => const App(),
+                    ),
+                  );
+                }
+              });
               // Close the dialog
             },
             child: const Text('Yes'),

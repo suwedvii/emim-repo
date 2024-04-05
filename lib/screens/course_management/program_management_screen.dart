@@ -16,21 +16,21 @@ import 'package:emim/widgets/add_program_modal.dart';
 import 'package:emim/widgets/custom_card_widget.dart';
 import 'package:emim/widgets/profile/my_toggle_switch.dart';
 
-class CourseManagementScreen extends ConsumerStatefulWidget {
-  const CourseManagementScreen(
+class ProgramManagementScreen extends ConsumerStatefulWidget {
+  const ProgramManagementScreen(
       {super.key, this.appBarTitle, required this.user});
 
   final String? appBarTitle;
   final MyUser user;
 
   @override
-  ConsumerState<CourseManagementScreen> createState() {
+  ConsumerState<ProgramManagementScreen> createState() {
     return _CourseManagementScreenState();
   }
 }
 
 class _CourseManagementScreenState
-    extends ConsumerState<CourseManagementScreen> {
+    extends ConsumerState<ProgramManagementScreen> {
   late List<Program> foundPrograms;
   late Stream<List<Program>> programs;
   List<Program> filteredPrograms = [];
@@ -213,7 +213,6 @@ class _CourseManagementScreenState
 
   void _openAddFacultyBottomSheet(String mode) {
     showModalBottomSheet(
-      isDismissible: false,
       isScrollControlled: true,
       useSafeArea: true,
       context: context,
@@ -223,7 +222,6 @@ class _CourseManagementScreenState
 
   void _openAddProgramBottomSheet() async {
     final result = await showModalBottomSheet(
-      isDismissible: false,
       useSafeArea: true,
       isScrollControlled: true,
       context: context,

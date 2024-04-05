@@ -59,9 +59,9 @@ class CourseDetails extends StatelessWidget {
           const SizedBox(
             height: 4,
           ),
-          DetailItem(description: course.courseName, title: 'Name'),
+          DetailItem(description: course.title, title: 'Title'),
           const SizedBox(height: 8),
-          DetailItem(description: course.courseCode, title: 'Code'),
+          DetailItem(description: course.code, title: 'Code'),
           const SizedBox(height: 8),
           DetailItem(description: course.program, title: 'Program'),
           const SizedBox(height: 8),
